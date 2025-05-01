@@ -81,8 +81,18 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       price: Number(item.price)
     }));
     
-    // Ensure status is of the correct type
-    const status = dbInvoice.status as InvoiceStatus;
+    // Validate status value before casting to ensure it's a valid InvoiceStatus
+    const statusValue = dbInvoice.status;
+    let status: InvoiceStatus;
+    
+    // Check if the status is one of the valid InvoiceStatus values
+    if (statusValue === 'draft' || statusValue === 'sent' || statusValue === 'paid' || statusValue === 'overdue') {
+      status = statusValue as InvoiceStatus;
+    } else {
+      // Default to draft if invalid status
+      console.warn(`Invalid invoice status: ${statusValue}, defaulting to 'draft'`);
+      status = 'draft';
+    }
     
     return {
       id: dbInvoice.id,
