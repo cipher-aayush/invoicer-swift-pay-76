@@ -8,11 +8,13 @@ import {
   Settings,
   CreditCard,
   Menu,
-  X
+  X,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -21,6 +23,7 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const navigationItems = [
     { name: "Dashboard", path: "/", icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -32,6 +35,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -87,6 +94,17 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 </Link>
               </li>
             ))}
+
+            {/* Logout button */}
+            <li>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center px-4 py-2 rounded-md transition-colors hover:bg-invoice-light text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="ml-2 font-medium">Logout</span>
+              </button>
+            </li>
           </ul>
         </nav>
 
@@ -94,11 +112,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <div className="border-t pt-4">
           <div className="flex items-center p-4">
             <div className="w-10 h-10 rounded-full bg-invoice-primary flex items-center justify-center text-white font-medium">
-              JD
+              {user?.email.charAt(0).toUpperCase() || "U"}
             </div>
             <div className="ml-2">
-              <p className="font-medium">John Doe</p>
-              <p className="text-muted-foreground text-sm">john@example.com</p>
+              <p className="font-medium">{user?.email || "User"}</p>
+              <p className="text-muted-foreground text-sm">{user?.email || "user@example.com"}</p>
             </div>
           </div>
         </div>
