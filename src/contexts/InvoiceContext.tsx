@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { Invoice, Client, InvoiceItem } from "@/types";
+import { Invoice, Client, InvoiceItem, InvoiceStatus } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -82,7 +82,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
     
     // Ensure status is of the correct type
-    const status = dbInvoice.status as "draft" | "sent" | "paid" | "overdue";
+    const status = dbInvoice.status as InvoiceStatus;
     
     return {
       id: dbInvoice.id,
@@ -411,7 +411,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const { error } = await supabase
         .from('invoices')
-        .update({ status: 'paid', updated_at: new Date().toISOString() })
+        .update({ status: 'paid' as InvoiceStatus, updated_at: new Date().toISOString() })
         .eq('id', id);
         
       if (error) throw error;
@@ -432,7 +432,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const { error } = await supabase
         .from('invoices')
-        .update({ status: 'sent', updated_at: new Date().toISOString() })
+        .update({ status: 'sent' as InvoiceStatus, updated_at: new Date().toISOString() })
         .eq('id', id);
         
       if (error) throw error;
