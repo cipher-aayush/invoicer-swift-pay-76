@@ -81,6 +81,9 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       price: Number(item.price)
     }));
     
+    // Ensure status is of the correct type
+    const status = dbInvoice.status as "draft" | "sent" | "paid" | "overdue";
+    
     return {
       id: dbInvoice.id,
       invoiceNumber: dbInvoice.invoice_number,
@@ -89,7 +92,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       dueDate: dbInvoice.due_date,
       items: items,
       notes: dbInvoice.notes || undefined,
-      status: dbInvoice.status,
+      status: status,
       totalAmount: Number(dbInvoice.total_amount)
     };
   };

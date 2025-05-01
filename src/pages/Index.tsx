@@ -5,15 +5,15 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
   
   useEffect(() => {
-    if (isAuthenticated) {
+    if (user) {
       navigate("/");
     } else {
       navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, navigate]);
   
   return null; // This component only handles navigation
 };

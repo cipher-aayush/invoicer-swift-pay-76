@@ -1,9 +1,8 @@
-
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Banknote, Menu, X, FileText, Users, Clock, Settings, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,7 @@ function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
@@ -177,7 +176,7 @@ function Sidebar() {
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   return (
     <div className="flex min-h-screen bg-gray-50">
