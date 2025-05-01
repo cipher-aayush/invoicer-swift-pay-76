@@ -56,6 +56,17 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     };
   };
 
+  // Helper function to validate invoice status
+  const validateInvoiceStatus = (statusValue: string): InvoiceStatus => {
+    if (statusValue === 'draft' || statusValue === 'sent' || statusValue === 'paid' || statusValue === 'overdue') {
+      return statusValue as InvoiceStatus;
+    } else {
+      // Default to draft if invalid status
+      console.warn(`Invalid invoice status: ${statusValue}, defaulting to 'draft'`);
+      return 'draft';
+    }
+  };
+
   const transformInvoiceWithItems = async (dbInvoice: DbInvoice): Promise<Invoice> => {
     // Get the client for this invoice
     const { data: clientData, error: clientError } = await supabase
@@ -81,18 +92,8 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       price: Number(item.price)
     }));
     
-    // Validate status value before casting to ensure it's a valid InvoiceStatus
-    const statusValue = dbInvoice.status;
-    let status: InvoiceStatus;
-    
-    // Check if the status is one of the valid InvoiceStatus values
-    if (statusValue === 'draft' || statusValue === 'sent' || statusValue === 'paid' || statusValue === 'overdue') {
-      status = statusValue as InvoiceStatus;
-    } else {
-      // Default to draft if invalid status
-      console.warn(`Invalid invoice status: ${statusValue}, defaulting to 'draft'`);
-      status = 'draft';
-    }
+    // Validate and set the status
+    const status = validateInvoiceStatus(dbInvoice.status);
     
     return {
       id: dbInvoice.id,
@@ -421,7 +422,10 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const { error } = await supabase
         .from('invoices')
-        .update({ status: 'paid' as InvoiceStatus, updated_at: new Date().toISOString() })
+        .update({ 
+          status: 'paid' as InvoiceStatus, 
+          updated_at: new Date().toISOString() 
+        })
         .eq('id', id);
         
       if (error) throw error;
@@ -442,7 +446,10 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const { error } = await supabase
         .from('invoices')
-        .update({ status: 'sent' as InvoiceStatus, updated_at: new Date().toISOString() })
+        .update({ 
+          status: 'sent' as InvoiceStatus, 
+          updated_at: new Date().toISOString() 
+        })
         .eq('id', id);
         
       if (error) throw error;
