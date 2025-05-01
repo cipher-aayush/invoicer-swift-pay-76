@@ -19,7 +19,7 @@ export default function InvoiceList() {
   const { invoices } = useInvoice();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   
   // Filter invoices based on search term and status
   const filteredInvoices = invoices.filter(invoice => {
@@ -28,7 +28,7 @@ export default function InvoiceList() {
       invoice.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.client.email.toLowerCase().includes(searchTerm.toLowerCase());
       
-    const matchesStatus = !statusFilter || invoice.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || invoice.status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -63,13 +63,13 @@ export default function InvoiceList() {
         <div className="w-full sm:w-48">
           <Select
             value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value || undefined)}
+            onValueChange={(value) => setStatusFilter(value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All statuses</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="sent">Sent</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
@@ -85,11 +85,11 @@ export default function InvoiceList() {
           <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
           <h3 className="mt-4 text-lg font-medium">No invoices found</h3>
           <p className="mt-1 text-muted-foreground">
-            {searchTerm || statusFilter
+            {searchTerm || statusFilter !== "all"
               ? "Try changing your search or filter"
               : "Create your first invoice to get started"}
           </p>
-          {!searchTerm && !statusFilter && (
+          {!searchTerm && statusFilter === "all" && (
             <Button className="mt-4" asChild>
               <Link to="/invoices/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
