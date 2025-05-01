@@ -1,133 +1,193 @@
 
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  Settings,
-  CreditCard,
-  Menu,
-  X,
-  LogOut
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Banknote, Menu, X, FileText, Users, Clock, Settings, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 interface AppLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+function Sidebar() {
   const location = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const isMobile = useMobile();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const navigationItems = [
-    { name: "Dashboard", path: "/", icon: <LayoutDashboard className="h-5 w-5" /> },
+  const toggleSidebar = () => setIsOpen(!isOpen);
+  
+  const navItems = [
+    { name: "Dashboard", path: "/", icon: <Banknote className="h-5 w-5" /> },
     { name: "Invoices", path: "/invoices", icon: <FileText className="h-5 w-5" /> },
     { name: "Clients", path: "/clients", icon: <Users className="h-5 w-5" /> },
-    { name: "Payments", path: "/payments", icon: <CreditCard className="h-5 w-5" /> },
+    { name: "Payments", path: "/payments", icon: <Clock className="h-5 w-5" /> },
     { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" /> },
   ];
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  
+  const isActive = (path: string) => 
+    path === "/" 
+      ? location.pathname === "/" 
+      : location.pathname.startsWith(path);
+  
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
   };
-
-  const handleLogout = () => {
-    logout();
+  
+  const getInitials = () => {
+    const fullName = user?.user_metadata?.full_name || user?.email || "";
+    return fullName
+      .split(" ")
+      .map(name => name[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
   };
-
+  
   return (
-    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
-      {/* Mobile Menu Button */}
-      <div className="md:hidden p-4 bg-background border-b z-20">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-auto flex md:hidden"
-          onClick={toggleMenu}
-        >
-          {isMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </Button>
-      </div>
-
-      {/* Sidebar for desktop / Mobile menu - Fixed position */}
-      <div 
-        className={cn(
-          "md:w-64 bg-card border-r flex flex-col space-y-10 transition-all duration-300 ease-in-out",
-          isMenuOpen ? "fixed inset-0 z-50" : "hidden md:flex md:sticky md:top-0 md:h-screen"
-        )}
-      >
-        {/* Logo */}
-        <div className="flex items-center justify-center md:justify-start py-4 px-4">
-          <div className="bg-invoice-primary text-white p-2 rounded-md">
-            <FileText className="h-6 w-6" />
+    <>
+      {/* Mobile header */}
+      {isMobile && (
+        <header className="fixed top-0 left-0 right-0 h-14 p-2 flex items-center justify-between bg-white border-b z-20">
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+            <h1 className="text-lg font-bold ml-2">Invoice App</h1>
           </div>
-          <h1 className="ml-2 text-2xl font-bold text-foreground">Swift Invoice</h1>
+          
+          {/* User dropdown for mobile */}
+          <div className="flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>{getInitials()}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {user?.user_metadata?.full_name || user?.email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+      )}
+      
+      {/* Sidebar (desktop or mobile when open) */}
+      <aside 
+        className={`${
+          isMobile 
+            ? isOpen 
+              ? "fixed inset-y-0 left-0 z-10 w-64 transform translate-x-0 transition-transform duration-300" 
+              : "fixed inset-y-0 left-0 z-10 w-64 transform -translate-x-full transition-transform duration-300"
+            : "sticky top-0 h-screen w-64 transition-all duration-300" 
+        } border-r bg-white px-3 py-4 flex flex-col`}
+      >
+        <div className="flex items-center h-14 px-3 mb-6">
+          <h1 className="text-xl font-bold">Invoice App</h1>
         </div>
         
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto">
-          <ul className="space-y-2 px-4">
-            {navigationItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={cn(
-                    "flex items-center px-4 py-2 rounded-md transition-colors",
-                    location.pathname === item.path
-                      ? "bg-invoice-primary text-white"
-                      : "hover:bg-invoice-light text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {item.icon}
-                  <span className="ml-2 font-medium">{item.name}</span>
-                </Link>
-              </li>
-            ))}
-
-            {/* Logout button */}
-            <li>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center px-4 py-2 rounded-md transition-colors hover:bg-invoice-light text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="h-5 w-5" />
-                <span className="ml-2 font-medium">Logout</span>
-              </button>
-            </li>
-          </ul>
+        <nav className="flex-1 space-y-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
+                isActive(item.path)
+                  ? "bg-invoice-primary text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+              onClick={isMobile ? toggleSidebar : undefined}
+            >
+              {item.icon}
+              <span>{item.name}</span>
+            </Link>
+          ))}
         </nav>
-
-        {/* User Section */}
-        <div className="border-t pt-4 px-4">
-          <div className="flex items-center p-4">
-            <div className="w-10 h-10 rounded-full bg-invoice-primary flex items-center justify-center text-white font-medium">
-              {user?.email.charAt(0).toUpperCase() || "U"}
-            </div>
-            <div className="ml-2">
-              <p className="font-medium">{user?.email || "User"}</p>
-              <p className="text-muted-foreground text-sm">{user?.email || "user@example.com"}</p>
-            </div>
+        
+        {/* User profile section (desktop only) */}
+        {!isMobile && (
+          <div className="border-t pt-4 mt-6">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-full flex items-center justify-start px-3">
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarFallback>{getInitials()}</AvatarFallback>
+                  </Avatar>
+                  <div className="text-left flex-1 truncate">
+                    <p className="text-sm font-medium truncate">
+                      {user?.user_metadata?.full_name || "User"}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </div>
-      </div>
+        )}
+      </aside>
+      
+      {/* Overlay for mobile */}
+      {isMobile && isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-[5]"
+          onClick={toggleSidebar}
+        />
+      )}
+    </>
+  );
+}
 
-      {/* Main Content - Scrollable */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-8">
-        {children}
+export default function AppLayout({ children }: AppLayoutProps) {
+  const isMobile = useMobile();
+  
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      
+      <main className={`flex-1 ${isMobile ? "pt-14" : ""}`}>
+        <div className="container p-4 sm:p-6 md:p-8 mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   );
-};
-
-export default AppLayout;
+}

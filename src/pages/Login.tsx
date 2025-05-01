@@ -1,124 +1,172 @@
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { FileText, Mail, Lock } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { signIn, signUp, user, loading } = useAuth();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [fullName, setFullName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user && !loading) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Simple validation
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please enter both email and password",
-        variant: "destructive",
-      });
-      setIsLoading(false);
+      toast.error("Please fill in all fields");
       return;
     }
 
-    // Mock authentication - in a real app, this would call an API
-    setTimeout(() => {
-      // For demo purposes, accept any non-empty email/password
-      if (email && password) {
-        // Store authentication state
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("user", JSON.stringify({ email }));
-        
-        toast({
-          title: "Success",
-          description: "Logged in successfully",
-        });
-        
-        navigate("/");
-      } else {
-        toast({
-          title: "Error",
-          description: "Invalid email or password",
-          variant: "destructive",
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    setIsSubmitting(true);
+    try {
+      await signIn(email, password);
+      navigate("/");
+    } catch (error) {
+      // Error is handled in the auth context
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password || !fullName) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await signUp(email, password, fullName);
+      toast.success("Account created! You can now sign in.");
+    } catch (error) {
+      // Error is handled in the auth context
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-muted/50 to-muted p-4">
-      <div className="w-full max-w-md space-y-6">
-        <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="bg-invoice-primary text-white p-3 rounded-md">
-            <FileText className="h-8 w-8" />
-          </div>
-          <h1 className="text-3xl font-bold">Swift Invoice</h1>
-          <p className="text-muted-foreground">Enter your credentials to access the invoice management system</p>
-        </div>
-
-        <div className="bg-card p-6 rounded-lg shadow-lg border">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="you@example.com" 
-                  className="pl-10" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label htmlFor="password">Password</Label>
-                <button type="button" className="text-sm text-invoice-primary hover:underline">
-                  Forgot password?
-                </button>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••" 
-                  className="pl-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full bg-invoice-primary hover:bg-invoice-primary/90"
-              disabled={isLoading}
-            >
-              {isLoading ? "Logging in..." : "Log in"}
-            </Button>
-            
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Demo credentials:</p>
-              <p>Email: demo@example.com / Password: demo123</p>
-            </div>
-          </form>
-        </div>
-      </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+      <Card className="w-full max-w-md transition-all duration-200 hover:shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold">Invoice App</CardTitle>
+          <CardDescription>Manage your clients and invoices</CardDescription>
+        </CardHeader>
+        
+        <Tabs defaultValue="signIn" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="signIn">Sign In</TabsTrigger>
+            <TabsTrigger value="signUp">Sign Up</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="signIn">
+            <form onSubmit={handleSignIn}>
+              <CardContent className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com" 
+                    required 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                  />
+                </div>
+              </CardContent>
+              
+              <CardFooter>
+                <Button 
+                  className="w-full bg-invoice-primary hover:bg-invoice-secondary transition-all duration-200 hover:scale-105" 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Signing in..." : "Sign In"}
+                </Button>
+              </CardFooter>
+            </form>
+          </TabsContent>
+          
+          <TabsContent value="signUp">
+            <form onSubmit={handleSignUp}>
+              <CardContent className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input 
+                    id="fullName" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Doe" 
+                    required 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="emailSignUp">Email</Label>
+                  <Input 
+                    id="emailSignUp" 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com" 
+                    required 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="passwordSignUp">Password</Label>
+                  <Input 
+                    id="passwordSignUp" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="At least 6 characters" 
+                    minLength={6}
+                    required 
+                  />
+                </div>
+              </CardContent>
+              
+              <CardFooter>
+                <Button 
+                  className="w-full bg-invoice-primary hover:bg-invoice-secondary transition-all duration-200 hover:scale-105" 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Creating account..." : "Create Account"}
+                </Button>
+              </CardFooter>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </Card>
     </div>
   );
 }
