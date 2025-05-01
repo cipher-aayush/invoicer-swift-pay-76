@@ -87,7 +87,7 @@ export default function PaymentsPage() {
 
       {/* Payment Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Paid
@@ -101,7 +101,7 @@ export default function PaymentsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Pending Payments
@@ -115,7 +115,7 @@ export default function PaymentsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Invoices
@@ -126,7 +126,7 @@ export default function PaymentsPage() {
             <div className="text-2xl font-bold">{invoices.length}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Overdue
@@ -142,7 +142,7 @@ export default function PaymentsPage() {
       </div>
 
       {/* Pending Payments */}
-      <Card>
+      <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
         <CardHeader>
           <CardTitle>Pending Payments</CardTitle>
         </CardHeader>
@@ -205,7 +205,7 @@ export default function PaymentsPage() {
       </Card>
 
       {/* Payment History */}
-      <Card>
+      <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
         <CardHeader>
           <CardTitle>Payment History</CardTitle>
         </CardHeader>

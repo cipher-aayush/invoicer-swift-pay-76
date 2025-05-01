@@ -54,7 +54,7 @@ export default function SettingsPage() {
         
         {/* Business Information */}
         <TabsContent value="business" className="mt-6">
-          <Card>
+          <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
             <CardHeader>
               <CardTitle>Business Information</CardTitle>
               <CardDescription>
@@ -116,7 +116,7 @@ export default function SettingsPage() {
         
         {/* Payment Settings */}
         <TabsContent value="payment" className="mt-6">
-          <Card>
+          <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
             <CardHeader>
               <CardTitle>Payment Settings</CardTitle>
               <CardDescription>
@@ -182,7 +182,7 @@ export default function SettingsPage() {
         
         {/* Notification Settings */}
         <TabsContent value="notifications" className="mt-6">
-          <Card>
+          <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
             <CardHeader>
               <CardTitle>Notification Settings</CardTitle>
               <CardDescription>

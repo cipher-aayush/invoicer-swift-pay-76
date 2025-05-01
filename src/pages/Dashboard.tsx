@@ -37,7 +37,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Invoices */}
-      <Card className="transition-all duration-200 hover:shadow-lg">
+      <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Recent Invoices</CardTitle>
@@ -52,7 +52,7 @@ export default function Dashboard() {
 
       {/* Status Summary */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Draft</CardTitle>
           </CardHeader>
@@ -60,7 +60,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{stats.draftInvoices}</div>
           </CardContent>
         </Card>
-        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Sent</CardTitle>
           </CardHeader>
@@ -70,7 +70,7 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Paid</CardTitle>
           </CardHeader>
@@ -78,7 +78,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{stats.paidInvoices}</div>
           </CardContent>
         </Card>
-        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
+        <Card className="transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Overdue</CardTitle>
           </CardHeader>
