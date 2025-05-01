@@ -1,14 +1,17 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreditCard, IndianRupee, Check } from "lucide-react";
+import { CreditCard, IndianRupee, Check, Timer, Smartphone } from "lucide-react";
 import { Invoice } from "@/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatCurrency, convertUSDtoINR } from "@/lib/utils";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 interface PaymentProcessorProps {
   invoice: Invoice;
@@ -24,18 +27,43 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
   const [cardCvv, setCvv] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [timer, setTimer] = useState<number | null>(null);
+  const [otp, setOtp] = useState("");
+  const [showOtpDialog, setShowOtpDialog] = useState(false);
   
   const totalAmountINR = convertUSDtoINR(invoice.totalAmount);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleUpiSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    // Start a 10 second timer for UPI
+    setTimer(10);
+  };
+
+  const handleCardSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
     
-    // Simulate payment processing
+    // Show OTP dialog after 1 second
     setTimeout(() => {
       setIsProcessing(false);
-      setShowSuccess(true);
-    }, 2000);
+      setShowOtpDialog(true);
+    }, 1000);
+  };
+  
+  const handleOtpSubmit = () => {
+    if (otp.length === 6) {
+      setShowOtpDialog(false);
+      setIsProcessing(true);
+      
+      // Simulate payment processing after OTP verification
+      setTimeout(() => {
+        setIsProcessing(false);
+        setShowSuccess(true);
+      }, 1500);
+    } else {
+      toast.error("Please enter a valid 6-digit OTP");
+    }
   };
   
   const handleSuccessClose = () => {
@@ -43,9 +71,32 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
     onPaymentComplete();
   };
 
+  // Effect for the timer
+  useEffect(() => {
+    let interval: number | undefined;
+    
+    if (timer !== null && timer > 0) {
+      interval = window.setInterval(() => {
+        setTimer((prev) => {
+          if (prev !== null && prev > 0) {
+            return prev - 1;
+          }
+          return 0;
+        });
+      }, 1000);
+    } else if (timer === 0) {
+      setIsProcessing(false);
+      setShowSuccess(true);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timer]);
+
   return (
     <>
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-md mx-auto transition-all duration-200 hover:shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center">
             <IndianRupee className="mr-2 h-5 w-5" /> 
@@ -58,11 +109,15 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
         <CardContent>
           <Tabs defaultValue="upi" onValueChange={(v) => setPaymentMethod(v as "upi" | "card")}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="upi">UPI</TabsTrigger>
-              <TabsTrigger value="card">Card</TabsTrigger>
+              <TabsTrigger value="upi" className="transition-colors data-[state=active]:bg-invoice-primary data-[state=active]:text-white">
+                <Smartphone className="mr-2 h-4 w-4" />UPI
+              </TabsTrigger>
+              <TabsTrigger value="card" className="transition-colors data-[state=active]:bg-invoice-primary data-[state=active]:text-white">
+                <CreditCard className="mr-2 h-4 w-4" />Card
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="upi" className="space-y-4 mt-4">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleUpiSubmit}>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="upi-id">UPI ID</Label>
@@ -72,12 +127,27 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                       value={upiId}
                       onChange={(e) => setUpiId(e.target.value)}
                       required
+                      className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                     />
-                    <p className="text-xs text-muted-foreground">Enter your UPI ID like yourname@bank or phoneNumber@upi</p>
+                    <p className="text-xs text-muted-foreground truncate">Enter your UPI ID like yourname@bank or phoneNumber@upi</p>
                   </div>
+                  
+                  {timer !== null && timer > 0 && (
+                    <div className="space-y-2 animate-fade-in">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Processing payment...</span>
+                        <span className="flex items-center text-sm font-medium">
+                          <Timer className="mr-1 h-4 w-4 text-amber-500" />
+                          {timer}s
+                        </span>
+                      </div>
+                      <Progress value={(10 - timer) * 10} className="h-2" />
+                    </div>
+                  )}
+                  
                   <Button 
                     type="submit" 
-                    className="w-full bg-invoice-primary hover:bg-invoice-secondary"
+                    className="w-full bg-invoice-primary hover:bg-invoice-secondary transition-colors duration-200 hover:scale-105"
                     disabled={isProcessing}
                   >
                     {isProcessing ? "Processing..." : `Pay ${formatCurrency(totalAmountINR, 'INR')}`}
@@ -86,7 +156,7 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
               </form>
             </TabsContent>
             <TabsContent value="card" className="space-y-4 mt-4">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleCardSubmit}>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="card-name">Name on Card</Label>
@@ -96,6 +166,7 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                       value={cardName}
                       onChange={(e) => setCardName(e.target.value)}
                       required
+                      className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                     />
                   </div>
                   <div className="space-y-2">
@@ -106,6 +177,7 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                       value={cardNumber}
                       onChange={(e) => setCardNumber(e.target.value)}
                       required
+                      className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -117,6 +189,7 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                         value={cardExpiry}
                         onChange={(e) => setCardExpiry(e.target.value)}
                         required
+                        className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -129,12 +202,13 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                         value={cardCvv}
                         onChange={(e) => setCvv(e.target.value)}
                         required
+                        className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                       />
                     </div>
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-invoice-primary hover:bg-invoice-secondary"
+                    className="w-full bg-invoice-primary hover:bg-invoice-secondary transition-colors duration-200 hover:scale-105"
                     disabled={isProcessing}
                   >
                     {isProcessing ? "Processing..." : `Pay ${formatCurrency(totalAmountINR, 'INR')}`}
@@ -145,12 +219,46 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
           </Tabs>
         </CardContent>
         <CardFooter className="flex justify-center text-sm text-muted-foreground">
-          <p>Your payment information is secure</p>
+          <p className="truncate">Your payment information is secure</p>
         </CardFooter>
       </Card>
 
+      {/* OTP Dialog */}
+      <Dialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
+        <DialogContent className="sm:max-w-md animate-scale-in">
+          <DialogHeader>
+            <DialogTitle>Enter OTP</DialogTitle>
+            <DialogDescription>
+              Enter the 6-digit OTP sent to your registered mobile number
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col space-y-4 py-4">
+            <div className="flex justify-center">
+              <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} className="transition-all duration-200" />
+                  <InputOTPSlot index={1} className="transition-all duration-200" />
+                  <InputOTPSlot index={2} className="transition-all duration-200" />
+                  <InputOTPSlot index={3} className="transition-all duration-200" />
+                  <InputOTPSlot index={4} className="transition-all duration-200" />
+                  <InputOTPSlot index={5} className="transition-all duration-200" />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+            <Button 
+              onClick={handleOtpSubmit} 
+              className="bg-invoice-primary hover:bg-invoice-secondary transition-colors duration-200 hover:scale-105"
+              disabled={otp.length !== 6}
+            >
+              Verify & Pay
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Dialog */}
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogContent>
+        <DialogContent className="animate-scale-in">
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <Check className="text-green-500 mr-2" /> Payment Successful
@@ -159,7 +267,10 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
               Your payment of {formatCurrency(totalAmountINR, 'INR')} for Invoice #{invoice.invoiceNumber} has been processed successfully.
             </DialogDescription>
           </DialogHeader>
-          <Button onClick={handleSuccessClose} className="bg-green-500 hover:bg-green-600">
+          <Button 
+            onClick={handleSuccessClose} 
+            className="bg-green-500 hover:bg-green-600 transition-colors duration-200 hover:scale-105"
+          >
             Continue
           </Button>
         </DialogContent>

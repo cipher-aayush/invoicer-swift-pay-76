@@ -18,6 +18,11 @@ import ClientList from "./pages/ClientList";
 import PaymentsPage from "./pages/PaymentsPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
+import NewInvoice from "./pages/NewInvoice";
+import NewClient from "./pages/NewClient";
+import EditInvoice from "./pages/EditInvoice";
+import EditClient from "./pages/EditClient";
+import ClientDetail from "./pages/ClientDetail";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +50,16 @@ const App = () => (
                     <InvoiceList />
                   </AppLayout>
                 } />
+                <Route path="/invoices/new" element={
+                  <AppLayout>
+                    <NewInvoice />
+                  </AppLayout>
+                } />
+                <Route path="/invoices/edit/:id" element={
+                  <AppLayout>
+                    <EditInvoice />
+                  </AppLayout>
+                } />
                 <Route path="/invoices/:id" element={
                   <AppLayout>
                     <InvoiceDetail />
@@ -53,6 +68,21 @@ const App = () => (
                 <Route path="/clients" element={
                   <AppLayout>
                     <ClientList />
+                  </AppLayout>
+                } />
+                <Route path="/clients/new" element={
+                  <AppLayout>
+                    <NewClient />
+                  </AppLayout>
+                } />
+                <Route path="/clients/edit/:id" element={
+                  <AppLayout>
+                    <EditClient />
+                  </AppLayout>
+                } />
+                <Route path="/clients/:id" element={
+                  <AppLayout>
+                    <ClientDetail />
                   </AppLayout>
                 } />
                 <Route path="/payments" element={
