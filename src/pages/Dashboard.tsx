@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { Banknote, FileText, Users, Clock, ArrowUpRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { InvoiceTable } from "@/components/invoice/InvoiceTable";
 import { formatCurrency } from "@/lib/utils";
 import { getDashboardStats } from "@/data/mockData";
+
 export default function Dashboard() {
   const {
     invoices
@@ -35,7 +37,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Invoices */}
-      <Card>
+      <Card className="transition-all duration-200 hover:shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Recent Invoices</CardTitle>
@@ -50,7 +52,7 @@ export default function Dashboard() {
 
       {/* Status Summary */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Draft</CardTitle>
           </CardHeader>
@@ -58,7 +60,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{stats.draftInvoices}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Sent</CardTitle>
           </CardHeader>
@@ -68,7 +70,7 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Paid</CardTitle>
           </CardHeader>
@@ -76,7 +78,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{stats.paidInvoices}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-md hover:border-invoice-primary">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Overdue</CardTitle>
           </CardHeader>

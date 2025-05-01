@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 interface StatCardProps {
@@ -19,7 +20,7 @@ export function StatCard({
   trend,
   className
 }: StatCardProps) {
-  return <Card className={cn("overflow-hidden", className)}>
+  return <Card className={cn("overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-invoice-primary transform hover:-translate-y-1", className)}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>

@@ -42,9 +42,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Mobile Menu Button */}
-      <div className="md:hidden p-4 bg-background border-b">
+      <div className="md:hidden p-4 bg-background border-b z-20">
         <Button
           variant="ghost"
           size="icon"
@@ -59,15 +59,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </Button>
       </div>
 
-      {/* Sidebar for desktop / Mobile menu */}
+      {/* Sidebar for desktop / Mobile menu - Fixed position */}
       <div 
         className={cn(
-          "w-full md:w-64 bg-card border-r p-4 flex flex-col space-y-10 transition-all duration-300 ease-in-out",
-          isMenuOpen ? "block absolute inset-0 z-50" : "hidden md:flex"
+          "md:w-64 bg-card border-r flex flex-col space-y-10 transition-all duration-300 ease-in-out",
+          isMenuOpen ? "fixed inset-0 z-50" : "hidden md:flex md:sticky md:top-0 md:h-screen"
         )}
       >
         {/* Logo */}
-        <div className="flex items-center justify-center md:justify-start py-4">
+        <div className="flex items-center justify-center md:justify-start py-4 px-4">
           <div className="bg-invoice-primary text-white p-2 rounded-md">
             <FileText className="h-6 w-6" />
           </div>
@@ -75,8 +75,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1">
-          <ul className="space-y-2">
+        <nav className="flex-1 overflow-y-auto">
+          <ul className="space-y-2 px-4">
             {navigationItems.map((item) => (
               <li key={item.path}>
                 <Link
@@ -109,7 +109,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </nav>
 
         {/* User Section */}
-        <div className="border-t pt-4">
+        <div className="border-t pt-4 px-4">
           <div className="flex items-center p-4">
             <div className="w-10 h-10 rounded-full bg-invoice-primary flex items-center justify-center text-white font-medium">
               {user?.email.charAt(0).toUpperCase() || "U"}
@@ -122,8 +122,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 overflow-auto">
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
         {children}
       </main>
     </div>
