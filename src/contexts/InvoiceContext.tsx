@@ -5,6 +5,34 @@ import { v4 as uuidv4 } from "uuid";
 import { clients, invoices as mockInvoices } from "@/data/mockData";
 import { toast } from "sonner";
 
+// Add some Indian clients to the context
+const indianClients: Client[] = [
+  {
+    id: uuidv4(),
+    name: "Rajesh Kumar",
+    email: "rajesh@example.com",
+    address: "123 MG Road\nBangalore, Karnataka\nIndia - 560001",
+    phone: "+91 98765 43210",
+    company: "Kumar Technologies Pvt. Ltd."
+  },
+  {
+    id: uuidv4(),
+    name: "Priya Sharma",
+    email: "priya.sharma@example.com",
+    address: "456 Anna Salai\nChennai, Tamil Nadu\nIndia - 600002",
+    phone: "+91 87654 32109",
+    company: "Sharma Enterprises"
+  },
+  {
+    id: uuidv4(),
+    name: "Amit Patel",
+    email: "amit.patel@example.com",
+    address: "789 SV Road\nMumbai, Maharashtra\nIndia - 400001",
+    phone: "+91 76543 21098",
+    company: "Patel Solutions"
+  }
+];
+
 interface InvoiceContextType {
   invoices: Invoice[];
   clients: Client[];
@@ -31,8 +59,11 @@ export const useInvoice = () => {
 };
 
 export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Combine existing clients with Indian clients
+  const allClients = [...clients, ...indianClients];
+
   const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
-  const [clientsList, setClients] = useState<Client[]>(clients);
+  const [clientsList, setClients] = useState<Client[]>(allClients);
 
   const getInvoiceById = (id: string) => {
     return invoices.find(invoice => invoice.id === id);

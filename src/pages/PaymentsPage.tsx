@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useInvoice } from "@/contexts/InvoiceContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, convertUSDtoINR } from "@/lib/utils";
 import { 
   Table,
   TableBody,
@@ -14,15 +14,17 @@ import {
 } from "@/components/ui/table";
 import {
   CreditCard,
-  Banknote,
+  IndianRupee,
   CheckCircle2,
   AlertCircle,
   Clock,
 } from "lucide-react";
 import { toast } from "sonner";
+import { PaymentProcessor } from "@/components/payment/PaymentProcessor";
 
 export default function PaymentsPage() {
   const { invoices, markAsPaid } = useInvoice();
+  const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
   
   // Filter to show only sent or overdue invoices
   const pendingPaymentInvoices = invoices.filter(
@@ -33,20 +35,29 @@ export default function PaymentsPage() {
   const paidInvoices = invoices.filter(invoice => invoice.status === "paid");
 
   const handleProcessPayment = (invoiceId: string) => {
-    markAsPaid(invoiceId);
-    toast.success("Payment processed successfully");
+    setSelectedInvoice(invoiceId);
   };
   
-  // Calculate totals
-  const totalPending = pendingPaymentInvoices.reduce(
-    (acc, invoice) => acc + invoice.totalAmount, 
-    0
-  );
+  const handlePaymentComplete = () => {
+    if (selectedInvoice) {
+      markAsPaid(selectedInvoice);
+      setSelectedInvoice(null);
+      toast.success("Payment processed successfully");
+    }
+  };
   
-  const totalPaid = paidInvoices.reduce(
+  // Calculate totals in INR
+  const totalPendingUSD = pendingPaymentInvoices.reduce(
     (acc, invoice) => acc + invoice.totalAmount, 
     0
   );
+  const totalPendingINR = convertUSDtoINR(totalPendingUSD);
+  
+  const totalPaidUSD = paidInvoices.reduce(
+    (acc, invoice) => acc + invoice.totalAmount, 
+    0
+  );
+  const totalPaidINR = convertUSDtoINR(totalPaidUSD);
 
   return (
     <div className="space-y-8">
@@ -54,6 +65,25 @@ export default function PaymentsPage() {
         <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
         <p className="text-muted-foreground">Manage invoice payments</p>
       </div>
+
+      {/* Payment Modal */}
+      {selectedInvoice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-w-md w-full">
+            <PaymentProcessor 
+              invoice={invoices.find(inv => inv.id === selectedInvoice)!} 
+              onPaymentComplete={handlePaymentComplete} 
+            />
+            <Button 
+              variant="outline" 
+              className="mt-4 w-full"
+              onClick={() => setSelectedInvoice(null)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Payment Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -65,7 +95,10 @@ export default function PaymentsPage() {
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalPaid)}</div>
+            <div className="text-2xl font-bold flex items-center">
+              <IndianRupee className="h-5 w-5 mr-1" />
+              {formatCurrency(totalPaidINR, 'INR').replace('₹', '')}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -76,7 +109,10 @@ export default function PaymentsPage() {
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalPending)}</div>
+            <div className="text-2xl font-bold flex items-center">
+              <IndianRupee className="h-5 w-5 mr-1" />
+              {formatCurrency(totalPendingINR, 'INR').replace('₹', '')}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -84,7 +120,7 @@ export default function PaymentsPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Invoices
             </CardTitle>
-            <Banknote className="h-4 w-4 text-blue-500" />
+            <IndianRupee className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{invoices.length}</div>
@@ -135,10 +171,10 @@ export default function PaymentsPage() {
                     <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
                     <TableCell>{invoice.client.name}</TableCell>
                     <TableCell>
-                      {new Date(invoice.dueDate).toLocaleDateString()}
+                      {new Date(invoice.dueDate).toLocaleDateString('en-IN')}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(invoice.totalAmount)}
+                      {formatCurrency(convertUSDtoINR(invoice.totalAmount), 'INR')}
                     </TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -203,13 +239,13 @@ export default function PaymentsPage() {
                           new Date().getTime(),
                           new Date(invoice.dueDate).getTime()
                         )
-                      ).toLocaleDateString()}
+                      ).toLocaleDateString('en-IN')}
                     </TableCell>
-                    <TableCell>{formatCurrency(invoice.totalAmount)}</TableCell>
+                    <TableCell>{formatCurrency(convertUSDtoINR(invoice.totalAmount), 'INR')}</TableCell>
                     <TableCell>
                       <div className="flex items-center">
                         <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <span>Credit Card</span>
+                        <span>UPI/Card</span>
                       </div>
                     </TableCell>
                   </TableRow>

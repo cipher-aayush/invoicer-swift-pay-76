@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, convertUSDtoINR } from "@/lib/utils";
 import { 
   ArrowLeft, 
   FileText, 
@@ -13,7 +13,8 @@ import {
   Trash, 
   Send, 
   Download,
-  CreditCard
+  CreditCard,
+  IndianRupee
 } from "lucide-react";
 import {
   AlertDialog,
@@ -28,6 +29,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PaymentProcessor } from "@/components/payment/PaymentProcessor";
+import { generateInvoicePDF } from "@/utils/pdfGenerator";
 
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +50,9 @@ export default function InvoiceDetail() {
     return null;
   }
 
+  // Convert invoice amount to INR for display
+  const totalAmountINR = convertUSDtoINR(invoice.totalAmount);
+
   const handleDeleteInvoice = () => {
     deleteInvoice(invoice.id);
     navigate("/invoices");
@@ -61,15 +67,13 @@ export default function InvoiceDetail() {
   };
 
   const handleDownloadPDF = () => {
-    // Mockup for downloading PDF
+    generateInvoicePDF(invoice);
     toast.success("Invoice PDF downloaded successfully");
   };
 
-  const handlePaymentAttempt = () => {
-    // Close dialog and show success message
-    setShowPaymentDialog(false);
-    toast.success("Payment processed successfully");
+  const handlePaymentComplete = () => {
     markAsPaid(invoice.id);
+    setShowPaymentDialog(false);
   };
 
   return (
@@ -124,33 +128,29 @@ export default function InvoiceDetail() {
           )}
           
           {(invoice.status === 'sent' || invoice.status === 'overdue') && (
-            <AlertDialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-              <AlertDialogTrigger asChild>
-                <Button variant="default" className="bg-invoice-primary hover:bg-invoice-secondary">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Pay Now
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Process Payment</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will simulate payment processing for Invoice #{invoice.invoiceNumber}.
-                    <div className="mt-4 p-4 bg-muted rounded-md">
-                      <p className="font-medium">Invoice Total: {formatCurrency(invoice.totalAmount)}</p>
-                      <p className="text-sm text-muted-foreground mt-1">Payment will be processed immediately.</p>
-                    </div>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handlePaymentAttempt}>Process Payment</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Button 
+              variant="default" 
+              className="bg-invoice-primary hover:bg-invoice-secondary"
+              onClick={() => setShowPaymentDialog(true)}
+            >
+              <CreditCard className="mr-2 h-4 w-4" />
+              Pay Now
+            </Button>
           )}
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-w-md w-full">
+            <PaymentProcessor 
+              invoice={invoice} 
+              onPaymentComplete={handlePaymentComplete} 
+            />
+          </div>
+        </div>
+      )}
 
       {/* Invoice Header */}
       <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -161,11 +161,11 @@ export default function InvoiceDetail() {
           </h1>
           <div className="flex items-center gap-2 mt-2">
             <p className="text-muted-foreground">
-              Created on {new Date(invoice.date).toLocaleDateString()}
+              Created on {new Date(invoice.date).toLocaleDateString('en-IN')}
             </p>
             <span className="text-muted-foreground">•</span>
             <p className="text-muted-foreground">
-              Due on {new Date(invoice.dueDate).toLocaleDateString()}
+              Due on {new Date(invoice.dueDate).toLocaleDateString('en-IN')}
             </p>
           </div>
         </div>
@@ -196,16 +196,19 @@ export default function InvoiceDetail() {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">{formatCurrency(invoice.totalAmount)}</span>
+                <span className="font-medium">{formatCurrency(totalAmountINR, 'INR')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span className="font-medium">{formatCurrency(0)}</span>
+                <span className="text-muted-foreground">GST (18%)</span>
+                <span className="font-medium">{formatCurrency(totalAmountINR * 0.18, 'INR')}</span>
               </div>
               <Separator />
               <div className="flex justify-between">
                 <span className="font-medium">Total</span>
-                <span className="font-bold text-lg">{formatCurrency(invoice.totalAmount)}</span>
+                <span className="font-bold text-lg flex items-center">
+                  <IndianRupee className="h-4 w-4 mr-1" />
+                  {formatCurrency(totalAmountINR * 1.18, 'INR').replace('₹', '')}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -230,9 +233,9 @@ export default function InvoiceDetail() {
                 <TableRow key={item.id}>
                   <TableCell>{item.description}</TableCell>
                   <TableCell className="text-right">{item.quantity}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(convertUSDtoINR(item.price), 'INR')}</TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatCurrency(item.price * item.quantity)}
+                    {formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR')}
                   </TableCell>
                 </TableRow>
               ))}

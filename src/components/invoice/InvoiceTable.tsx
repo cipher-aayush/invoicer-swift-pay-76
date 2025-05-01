@@ -2,9 +2,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 import { Invoice } from "@/types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, convertUSDtoINR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, FileText } from "lucide-react";
+import { MoreHorizontal, FileText, Download } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import { useInvoice } from "@/contexts/InvoiceContext";
+import { generateInvoicePDF } from "@/utils/pdfGenerator";
 
 interface InvoiceTableProps {
   invoices: Invoice[];
@@ -21,6 +22,10 @@ interface InvoiceTableProps {
 
 export function InvoiceTable({ invoices, showActions = true }: InvoiceTableProps) {
   const { markAsPaid, markAsSent, deleteInvoice } = useInvoice();
+
+  const handleDownloadPDF = (invoice: Invoice) => {
+    generateInvoicePDF(invoice);
+  };
 
   return (
     <Table>
@@ -31,7 +36,7 @@ export function InvoiceTable({ invoices, showActions = true }: InvoiceTableProps
           <TableHead>Date</TableHead>
           <TableHead>Due Date</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
+          <TableHead className="text-right">Amount (₹)</TableHead>
           {showActions && <TableHead className="text-right">Actions</TableHead>}
         </TableRow>
       </TableHeader>
@@ -51,13 +56,13 @@ export function InvoiceTable({ invoices, showActions = true }: InvoiceTableProps
                 </Link>
               </TableCell>
               <TableCell>{invoice.client.name}</TableCell>
-              <TableCell>{new Date(invoice.date).toLocaleDateString()}</TableCell>
-              <TableCell>{new Date(invoice.dueDate).toLocaleDateString()}</TableCell>
+              <TableCell>{new Date(invoice.date).toLocaleDateString('en-IN')}</TableCell>
+              <TableCell>{new Date(invoice.dueDate).toLocaleDateString('en-IN')}</TableCell>
               <TableCell>
                 <InvoiceStatusBadge status={invoice.status} />
               </TableCell>
               <TableCell className="text-right font-medium">
-                {formatCurrency(invoice.totalAmount)}
+                {formatCurrency(convertUSDtoINR(invoice.totalAmount), 'INR')}
               </TableCell>
               {showActions && (
                 <TableCell className="text-right">
@@ -79,6 +84,10 @@ export function InvoiceTable({ invoices, showActions = true }: InvoiceTableProps
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => markAsPaid(invoice.id)}>
                         Mark as Paid
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownloadPDF(invoice)}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download PDF
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => deleteInvoice(invoice.id)}>
                         Delete Invoice
