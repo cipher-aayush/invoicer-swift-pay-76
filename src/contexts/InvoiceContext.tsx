@@ -211,6 +211,9 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
     
     try {
+      // Make sure the status is a valid InvoiceStatus
+      const validatedStatus = validateInvoiceStatus(invoiceData.status as string);
+      
       // Insert invoice record
       const { data: newInvoice, error: invoiceError } = await supabase
         .from('invoices')
@@ -220,7 +223,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
           date: invoiceData.date,
           due_date: invoiceData.dueDate,
           notes: invoiceData.notes || null,
-          status: invoiceData.status,
+          status: validatedStatus,
           total_amount: invoiceData.totalAmount,
           user_id: user.id
         })
@@ -257,6 +260,9 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
     
     try {
+      // Make sure the status is a valid InvoiceStatus
+      const validatedStatus = validateInvoiceStatus(invoice.status as string);
+      
       // Update invoice record
       const { error: invoiceError } = await supabase
         .from('invoices')
@@ -266,7 +272,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
           date: invoice.date,
           due_date: invoice.dueDate,
           notes: invoice.notes || null,
-          status: invoice.status,
+          status: validatedStatus,
           total_amount: invoice.totalAmount,
           updated_at: new Date().toISOString()
         })
