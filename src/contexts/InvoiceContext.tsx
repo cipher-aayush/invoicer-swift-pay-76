@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { Invoice, Client, InvoiceItem, InvoiceStatus, Payment } from "@/types";
+import { Invoice, Client, InvoiceItem, InvoiceStatus, Payment, ReminderSettings } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,7 +27,7 @@ interface InvoiceContextType {
   recordPayment: (payment: Omit<Payment, "id">) => Promise<void>;
   getInvoicePayments: (invoiceId: string) => Payment[];
   sendPaymentReminder: (invoiceId: string) => Promise<void>;
-  updateReminderSettings: (invoiceId: string, settings: any) => Promise<void>;
+  updateReminderSettings: (invoiceId: string, settings: ReminderSettings) => Promise<void>;
   loading: boolean;
   refreshData: () => Promise<void>;
 }
@@ -126,7 +126,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     const totalAmount = Number(dbInvoice.total_amount);
     const remainingAmount = totalAmount - paidAmount;
     
-    // Extract reminder settings from the JSONB column
+    // Extract reminder settings from the JSONB column and properly type it
     const reminderSettings = dbInvoice.reminder_settings ? dbInvoice.reminder_settings as ReminderSettings : undefined;
     
     return {
@@ -600,7 +600,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
-  const updateReminderSettings = async (invoiceId: string, settings: any) => {
+  const updateReminderSettings = async (invoiceId: string, settings: ReminderSettings) => {
     if (!user) {
       toast.error("You must be logged in to update reminder settings");
       return;
@@ -610,7 +610,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       const { error } = await supabase
         .from('invoices')
         .update({
-          reminder_settings: settings,
+          reminder_settings: settings as any, // Cast to any to bypass TypeScript check since we added the index signature
           updated_at: new Date().toISOString()
         })
         .eq('id', invoiceId);

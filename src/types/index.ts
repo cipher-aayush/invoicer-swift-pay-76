@@ -29,6 +29,7 @@ export interface ReminderSettings {
   beforeDueDays: number[];  // Days before due date to send reminders
   afterDueDays: number[];   // Days after due date to send reminders
   lastSentDate?: string;    // Last time a reminder was sent
+  [key: string]: boolean | number[] | string | undefined;  // Index signature for Json compatibility
 }
 
 export interface Invoice {
