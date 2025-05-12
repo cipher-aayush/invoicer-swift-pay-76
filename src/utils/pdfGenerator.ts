@@ -1,95 +1,119 @@
 
 import { Invoice } from "@/types";
 import { formatCurrency, convertUSDtoINR, formatDate } from "@/lib/utils";
+import jsPDF from "jspdf";
 
 export const generateInvoicePDF = (invoice: Invoice): void => {
-  // In a real application, this would use a library like jspdf or pdfmake
-  // to generate a PDF file and trigger a download
-  // For this demo, we'll mock the functionality with more detailed console logs
+  // Create a new jsPDF instance
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
   
-  console.log("Generating PDF for invoice:", invoice.invoiceNumber);
+  // Document title
+  doc.setFontSize(20);
+  doc.text("INVOICE", pageWidth / 2, 20, { align: "center" });
   
-  // Create a detailed data structure that would be used to generate the PDF
-  const invoiceData = {
-    invoiceNumber: invoice.invoiceNumber,
-    date: formatDate(invoice.date),
-    dueDate: formatDate(invoice.dueDate),
-    clientDetails: {
-      name: invoice.client.name,
-      email: invoice.client.email,
-      address: invoice.client.address,
-      phone: invoice.client.phone || 'N/A',
-      company: invoice.client.company || 'N/A'
-    },
-    items: invoice.items.map(item => ({
-      description: item.description,
-      quantity: item.quantity,
-      price: formatCurrency(convertUSDtoINR(item.price), 'INR'),
-      total: formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR')
-    })),
-    subtotal: formatCurrency(convertUSDtoINR(invoice.totalAmount), 'INR'),
-    gst: formatCurrency(convertUSDtoINR(invoice.totalAmount * 0.18), 'INR'), // 18% GST
-    totalAmount: formatCurrency(convertUSDtoINR(invoice.totalAmount * 1.18), 'INR'),
-    status: invoice.status,
-    notes: invoice.notes || 'No additional notes'
-  };
+  // Invoice details
+  doc.setFontSize(12);
+  doc.text(`Invoice #: ${invoice.invoiceNumber}`, 20, 40);
+  doc.text(`Date: ${formatDate(invoice.date)}`, 20, 50);
+  doc.text(`Due Date: ${formatDate(invoice.dueDate)}`, 20, 60);
+  doc.text(`Status: ${invoice.status.toUpperCase()}`, 20, 70);
   
-  console.log("Invoice data for PDF:", invoiceData);
+  // Client details
+  doc.setFontSize(14);
+  doc.text("Client Information", 20, 90);
+  doc.setFontSize(12);
+  doc.text(`Name: ${invoice.client.name}`, 20, 100);
+  if (invoice.client.company) {
+    doc.text(`Company: ${invoice.client.company}`, 20, 110);
+  }
+  doc.text(`Email: ${invoice.client.email}`, 20, 120);
+  if (invoice.client.phone) {
+    doc.text(`Phone: ${invoice.client.phone}`, 20, 130);
+  }
+  doc.text(`Address: ${invoice.client.address.replace(/\n/g, ', ')}`, 20, 140);
   
-  // In a real app, here we would generate the PDF with proper styling and sections
+  // Invoice items
+  doc.setFontSize(14);
+  doc.text("Invoice Items", 20, 160);
   
-  // For now, we'll just show a simulated download behavior with animation
-  const downloadButton = document.createElement('div');
-  downloadButton.style.position = 'fixed';
-  downloadButton.style.bottom = '20px';
-  downloadButton.style.right = '20px';
-  downloadButton.style.padding = '10px 20px';
-  downloadButton.style.backgroundColor = '#4c1d95';
-  downloadButton.style.color = 'white';
-  downloadButton.style.borderRadius = '4px';
-  downloadButton.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-  downloadButton.style.animation = 'fadeIn 0.5s ease-out forwards';
-  downloadButton.style.zIndex = '9999';
-  downloadButton.style.cursor = 'pointer';
-  downloadButton.style.display = 'flex';
-  downloadButton.style.alignItems = 'center';
-  downloadButton.style.gap = '8px';
-  downloadButton.style.transition = 'all 0.3s ease';
-  downloadButton.innerHTML = `
-    <span>Downloading Invoice PDF...</span>
-  `;
+  // Table header
+  doc.setFontSize(11);
+  doc.text("Description", 20, 170);
+  doc.text("Qty", 120, 170);
+  doc.text("Price", 140, 170);
+  doc.text("Total", 170, 170);
   
-  document.body.appendChild(downloadButton);
+  // Draw a line
+  doc.setLineWidth(0.5);
+  doc.line(20, 175, 190, 175);
   
-  // Add CSS for animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @keyframes fadeOut {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(20px); }
-    }
-  `;
-  document.head.appendChild(style);
-  
-  setTimeout(() => {
-    downloadButton.style.animation = 'fadeOut 0.5s ease-out forwards';
-    setTimeout(() => {
-      document.body.removeChild(downloadButton);
-      document.head.removeChild(style);
+  // Table content
+  let yPos = 185;
+  invoice.items.forEach(item => {
+    doc.setFontSize(10);
+    // Truncate long descriptions to fit
+    const description = item.description.length > 40 ? 
+      item.description.substring(0, 37) + '...' : item.description;
       
-      // Trigger actual download
-      const element = document.createElement('a');
-      element.setAttribute('href', 'data:text/plain;charset=utf-8,');
-      element.setAttribute('download', `Invoice_${invoice.invoiceNumber}.pdf`);
-      element.style.display = 'none';
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    }, 500);
-  }, 2000);
+    doc.text(description, 20, yPos);
+    doc.text(item.quantity.toString(), 120, yPos);
+    doc.text(formatCurrency(convertUSDtoINR(item.price), 'INR'), 140, yPos);
+    doc.text(formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR'), 170, yPos);
+    yPos += 10;
+    
+    // Add a new page if we're running out of space
+    if (yPos > 270) {
+      doc.addPage();
+      yPos = 20;
+    }
+  });
+  
+  // Draw a line
+  doc.line(20, yPos, 190, yPos);
+  yPos += 10;
+  
+  // Summary
+  const totalAmountINR = convertUSDtoINR(invoice.totalAmount);
+  const gstAmount = totalAmountINR * 0.18;
+  const finalAmount = totalAmountINR * 1.18;
+  
+  doc.text("Subtotal:", 120, yPos);
+  doc.text(formatCurrency(totalAmountINR, 'INR'), 170, yPos);
+  yPos += 10;
+  
+  doc.text("GST (18%):", 120, yPos);
+  doc.text(formatCurrency(gstAmount, 'INR'), 170, yPos);
+  yPos += 10;
+  
+  if (invoice.paidAmount && invoice.paidAmount > 0) {
+    const paidAmountINR = convertUSDtoINR(invoice.paidAmount);
+    doc.text("Paid:", 120, yPos);
+    doc.text(`- ${formatCurrency(paidAmountINR, 'INR')}`, 170, yPos);
+    yPos += 10;
+  }
+  
+  doc.setFontSize(12);
+  doc.text("Total:", 120, yPos);
+  doc.text(formatCurrency(finalAmount, 'INR'), 170, yPos);
+  
+  // Notes
+  if (invoice.notes) {
+    yPos += 20;
+    doc.setFontSize(14);
+    doc.text("Notes", 20, yPos);
+    yPos += 10;
+    doc.setFontSize(10);
+    
+    // Split notes into lines to prevent overflow
+    const splitNotes = doc.splitTextToSize(invoice.notes, 170);
+    doc.text(splitNotes, 20, yPos);
+  }
+  
+  // Save the PDF file
+  const filename = `Invoice_${invoice.invoiceNumber}.pdf`;
+  doc.save(filename);
+  
+  // Show a success toast notification (the actual toast is triggered in InvoiceDetail.tsx)
+  console.log("PDF generated successfully:", filename);
 };
