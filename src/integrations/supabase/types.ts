@@ -83,6 +83,47 @@ export type Database = {
           },
         ]
       }
+      invoice_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          invoice_id: string | null
+          method: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          id?: string
+          invoice_id?: string | null
+          method: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          invoice_id?: string | null
+          method?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           client_id: string
@@ -92,6 +133,7 @@ export type Database = {
           id: string
           invoice_number: string
           notes: string | null
+          reminder_settings: Json | null
           status: string
           total_amount: number
           updated_at: string
@@ -105,6 +147,7 @@ export type Database = {
           id?: string
           invoice_number: string
           notes?: string | null
+          reminder_settings?: Json | null
           status: string
           total_amount: number
           updated_at?: string
@@ -118,6 +161,7 @@ export type Database = {
           id?: string
           invoice_number?: string
           notes?: string | null
+          reminder_settings?: Json | null
           status?: string
           total_amount?: number
           updated_at?: string

@@ -1,15 +1,15 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { Invoice, Client, InvoiceItem, InvoiceStatus, Payment } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/types/supabase";
+import { Database } from "@/integrations/supabase/types";
 
 type DbClient = Database['public']['Tables']['clients']['Row'];
 type DbInvoice = Database['public']['Tables']['invoices']['Row'];
 type DbInvoiceItem = Database['public']['Tables']['invoice_items']['Row'];
+type DbInvoicePayment = Database['public']['Tables']['invoice_payments']['Row'];
 
 interface InvoiceContextType {
   invoices: Invoice[];
@@ -126,6 +126,9 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     const totalAmount = Number(dbInvoice.total_amount);
     const remainingAmount = totalAmount - paidAmount;
     
+    // Extract reminder settings from the JSONB column
+    const reminderSettings = dbInvoice.reminder_settings ? dbInvoice.reminder_settings as ReminderSettings : undefined;
+    
     return {
       id: dbInvoice.id,
       invoiceNumber: dbInvoice.invoice_number,
@@ -138,7 +141,8 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       totalAmount: totalAmount,
       paidAmount: paidAmount,
       remainingAmount: remainingAmount,
-      payments: payments
+      payments: payments,
+      reminderSettings: reminderSettings
     };
   };
 
