@@ -1,6 +1,6 @@
 
 import { Invoice } from "@/types";
-import { formatCurrency, convertUSDtoINR, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import jsPDF from "jspdf";
 
 export const generateInvoicePDF = (invoice: Invoice): void => {
@@ -60,11 +60,11 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
     doc.text(item.quantity.toString(), 120, yPos);
     
     // Format price in INR without the ₹ symbol
-    const priceInINR = formatCurrency(convertUSDtoINR(item.price), 'INR').replace('₹', '').trim();
+    const priceInINR = formatCurrency(item.price, 'INR').replace('₹', '').trim();
     doc.text(priceInINR, 140, yPos);
     
     // Format total in INR
-    const totalInINR = formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR').replace('₹', '').trim();
+    const totalInINR = formatCurrency(item.price * item.quantity, 'INR').replace('₹', '').trim();
     doc.text(totalInINR, 170, yPos);
     
     yPos += 10;
@@ -81,7 +81,7 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
   yPos += 10;
   
   // Summary
-  const totalAmountINR = convertUSDtoINR(invoice.totalAmount);
+  const totalAmountINR = invoice.totalAmount;
   const gstAmount = totalAmountINR * 0.18;
   const finalAmount = totalAmountINR * 1.18;
   
@@ -94,7 +94,7 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
   yPos += 10;
   
   if (invoice.paidAmount && invoice.paidAmount > 0) {
-    const paidAmountINR = convertUSDtoINR(invoice.paidAmount);
+    const paidAmountINR = invoice.paidAmount;
     doc.text("Paid:", 120, yPos);
     doc.text(`- ${formatCurrency(paidAmountINR, 'INR')}`, 170, yPos);
     yPos += 10;

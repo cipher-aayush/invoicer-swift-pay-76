@@ -15,11 +15,9 @@ export function formatCurrency(amount: number, currency: 'USD' | 'INR' = 'INR'):
   return formatter.format(amount);
 }
 
+// This function is kept for backward compatibility but now just returns the amount
 export function convertUSDtoINR(amountUSD: number): number {
-  // Using a fixed conversion rate for demonstration
-  // In a production app, this should use real-time rates from an API
-  const conversionRate = 83.5; // Example rate: 1 USD = 83.5 INR
-  return amountUSD * conversionRate;
+  return amountUSD; // No conversion needed as we're working directly in INR
 }
 
 export function formatDate(dateString: string): string {

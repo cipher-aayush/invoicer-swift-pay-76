@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
-import { formatCurrency, convertUSDtoINR } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { 
   ArrowLeft, 
   FileText, 
@@ -69,10 +69,10 @@ export default function InvoiceDetail() {
     return null;
   }
 
-  // Convert invoice amount to INR for display
-  const totalAmountINR = convertUSDtoINR(invoice.totalAmount);
-  const paidAmountINR = convertUSDtoINR(invoice.paidAmount || 0);
-  const remainingAmountINR = convertUSDtoINR(invoice.remainingAmount || invoice.totalAmount);
+  // Get amounts in INR (no need to convert anymore)
+  const totalAmountINR = invoice.totalAmount;
+  const paidAmountINR = invoice.paidAmount || 0;
+  const remainingAmountINR = invoice.remainingAmount || invoice.totalAmount;
 
   const handleDeleteInvoice = () => {
     deleteInvoice(invoice.id);
@@ -305,10 +305,10 @@ export default function InvoiceDetail() {
                       <TableCell className="font-medium">{item.description}</TableCell>
                       <TableCell className="text-right">{item.quantity}</TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(convertUSDtoINR(item.price), 'INR').replace('₹', '')}
+                        {formatCurrency(item.price, 'INR').replace('₹', '')}
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        {formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR')}
+                        {formatCurrency(item.price * item.quantity, 'INR')}
                       </TableCell>
                     </TableRow>
                   ))}
