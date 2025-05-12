@@ -41,8 +41,8 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
   doc.setFontSize(11);
   doc.text("Description", 20, 170);
   doc.text("Qty", 120, 170);
-  doc.text("Price", 140, 170);
-  doc.text("Total", 170, 170);
+  doc.text("Price (₹)", 140, 170);
+  doc.text("Total (₹)", 170, 170);
   
   // Draw a line
   doc.setLineWidth(0.5);
@@ -58,8 +58,15 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
       
     doc.text(description, 20, yPos);
     doc.text(item.quantity.toString(), 120, yPos);
-    doc.text(formatCurrency(convertUSDtoINR(item.price), 'INR'), 140, yPos);
-    doc.text(formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR'), 170, yPos);
+    
+    // Format price in INR without the ₹ symbol
+    const priceInINR = formatCurrency(convertUSDtoINR(item.price), 'INR').replace('₹', '').trim();
+    doc.text(priceInINR, 140, yPos);
+    
+    // Format total in INR
+    const totalInINR = formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR').replace('₹', '').trim();
+    doc.text(totalInINR, 170, yPos);
+    
     yPos += 10;
     
     // Add a new page if we're running out of space
@@ -114,6 +121,5 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
   const filename = `Invoice_${invoice.invoiceNumber}.pdf`;
   doc.save(filename);
   
-  // Show a success toast notification (the actual toast is triggered in InvoiceDetail.tsx)
   console.log("PDF generated successfully:", filename);
 };

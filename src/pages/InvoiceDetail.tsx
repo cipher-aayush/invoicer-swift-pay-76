@@ -286,25 +286,27 @@ export default function InvoiceDetail() {
             </Card>
           </div>
 
-          {/* Invoice Items */}
+          {/* Invoice Items - Updated with better details */}
           <Card>
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold mb-4">Invoice Items</h2>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-full">Item</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="w-[40%]">Description</TableHead>
+                    <TableHead className="text-right w-[15%]">Quantity</TableHead>
+                    <TableHead className="text-right w-[20%]">Price (₹)</TableHead>
+                    <TableHead className="text-right w-[25%]">Total (₹)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {invoice.items.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.description}</TableCell>
+                      <TableCell className="font-medium">{item.description}</TableCell>
                       <TableCell className="text-right">{item.quantity}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(convertUSDtoINR(item.price), 'INR')}</TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(convertUSDtoINR(item.price), 'INR').replace('₹', '')}
+                      </TableCell>
                       <TableCell className="text-right font-medium">
                         {formatCurrency(convertUSDtoINR(item.price * item.quantity), 'INR')}
                       </TableCell>
