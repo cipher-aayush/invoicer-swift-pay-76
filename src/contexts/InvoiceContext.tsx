@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { Invoice, Client, InvoiceItem, InvoiceStatus } from "@/types";
+import { Invoice, Client, InvoiceItem, InvoiceStatus, Payment } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,6 +24,10 @@ interface InvoiceContextType {
   deleteClient: (id: string) => Promise<void>;
   markAsPaid: (id: string) => Promise<void>;
   markAsSent: (id: string) => Promise<void>;
+  recordPayment: (payment: Omit<Payment, "id">) => Promise<void>;
+  getInvoicePayments: (invoiceId: string) => Payment[];
+  sendPaymentReminder: (invoiceId: string) => Promise<void>;
+  updateReminderSettings: (invoiceId: string, settings: any) => Promise<void>;
   loading: boolean;
   refreshData: () => Promise<void>;
 }
@@ -41,6 +45,7 @@ export const useInvoice = () => {
 export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -58,7 +63,8 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // Helper function to validate invoice status
   const validateInvoiceStatus = (statusValue: string): InvoiceStatus => {
-    if (statusValue === 'draft' || statusValue === 'sent' || statusValue === 'paid' || statusValue === 'overdue') {
+    const validStatuses: InvoiceStatus[] = ['draft', 'sent', 'paid', 'overdue', 'partial'];
+    if (validStatuses.includes(statusValue as InvoiceStatus)) {
       return statusValue as InvoiceStatus;
     } else {
       // Default to draft if invalid status
@@ -95,6 +101,31 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     // Validate and set the status
     const status = validateInvoiceStatus(dbInvoice.status);
     
+    // Get payments for this invoice
+    const { data: paymentsData, error: paymentsError } = await supabase
+      .from('invoice_payments')
+      .select('*')
+      .eq('invoice_id', dbInvoice.id);
+
+    let paidAmount = 0;
+    let payments: Payment[] = [];
+    
+    if (!paymentsError && paymentsData) {
+      payments = paymentsData.map(payment => ({
+        id: payment.id,
+        invoiceId: payment.invoice_id,
+        amount: Number(payment.amount),
+        date: payment.date,
+        method: payment.method,
+        notes: payment.notes || undefined
+      }));
+      
+      paidAmount = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    }
+    
+    const totalAmount = Number(dbInvoice.total_amount);
+    const remainingAmount = totalAmount - paidAmount;
+    
     return {
       id: dbInvoice.id,
       invoiceNumber: dbInvoice.invoice_number,
@@ -104,7 +135,10 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       items: items,
       notes: dbInvoice.notes || undefined,
       status: status,
-      totalAmount: Number(dbInvoice.total_amount)
+      totalAmount: totalAmount,
+      paidAmount: paidAmount,
+      remainingAmount: remainingAmount,
+      payments: payments
     };
   };
 
@@ -204,6 +238,11 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     return clients.find(client => client.id === id);
   };
 
+  const getInvoicePayments = (invoiceId: string) => {
+    const invoice = getInvoiceById(invoiceId);
+    return invoice?.payments || [];
+  };
+
   const createInvoice = async (invoiceData: Omit<Invoice, "id">) => {
     if (!user) {
       toast.error("You must be logged in to create invoices");
@@ -212,7 +251,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     
     try {
       // Make sure the status is a valid InvoiceStatus
-      const validatedStatus = validateInvoiceStatus(invoiceData.status as string);
+      const validatedStatus = validateInvoiceStatus(invoiceData.status);
       
       // Insert invoice record
       const { data: newInvoice, error: invoiceError } = await supabase
@@ -261,7 +300,7 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     
     try {
       // Make sure the status is a valid InvoiceStatus
-      const validatedStatus = validateInvoiceStatus(invoice.status as string);
+      const validatedStatus = validateInvoiceStatus(invoice.status);
       
       // Update invoice record
       const { error: invoiceError } = await supabase
@@ -467,6 +506,120 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  // New functions for handling partial payments and reminders
+  const recordPayment = async (payment: Omit<Payment, "id">) => {
+    if (!user) {
+      toast.error("You must be logged in to record payments");
+      return;
+    }
+    
+    try {
+      // Insert payment record
+      const { error: paymentError } = await supabase
+        .from('invoice_payments')
+        .insert({
+          invoice_id: payment.invoiceId,
+          amount: payment.amount,
+          date: payment.date,
+          method: payment.method,
+          notes: payment.notes || null
+        });
+        
+      if (paymentError) throw paymentError;
+      
+      // Get invoice to check if fully paid
+      const invoice = getInvoiceById(payment.invoiceId);
+      if (!invoice) throw new Error("Invoice not found");
+      
+      const totalPaid = (invoice.paidAmount || 0) + payment.amount;
+      let newStatus: InvoiceStatus = 'paid';
+      
+      if (totalPaid < invoice.totalAmount) {
+        newStatus = 'partial';
+      }
+      
+      // Update invoice status based on payment amount
+      const { error: updateError } = await supabase
+        .from('invoices')
+        .update({ 
+          status: newStatus,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', payment.invoiceId);
+        
+      if (updateError) throw updateError;
+      
+      toast.success("Payment recorded successfully");
+      await refreshData();
+    } catch (error: any) {
+      toast.error(`Failed to record payment: ${error.message}`);
+      throw error;
+    }
+  };
+
+  const sendPaymentReminder = async (invoiceId: string) => {
+    if (!user) {
+      toast.error("You must be logged in to send reminders");
+      return;
+    }
+    
+    try {
+      const invoice = getInvoiceById(invoiceId);
+      if (!invoice) throw new Error("Invoice not found");
+      
+      // In a real implementation, this would connect to an email service
+      // For now, we'll just update the lastSentDate in reminder settings
+      
+      const reminderSettings = invoice.reminderSettings || {
+        enabled: true,
+        beforeDueDays: [7, 3, 1],
+        afterDueDays: [1, 3, 7, 14],
+        lastSentDate: new Date().toISOString()
+      };
+      
+      reminderSettings.lastSentDate = new Date().toISOString();
+      
+      const { error } = await supabase
+        .from('invoices')
+        .update({
+          reminder_settings: reminderSettings,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoiceId);
+        
+      if (error) throw error;
+      
+      toast.success(`Payment reminder sent to ${invoice.client.name}`);
+    } catch (error: any) {
+      toast.error(`Failed to send reminder: ${error.message}`);
+      throw error;
+    }
+  };
+
+  const updateReminderSettings = async (invoiceId: string, settings: any) => {
+    if (!user) {
+      toast.error("You must be logged in to update reminder settings");
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({
+          reminder_settings: settings,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoiceId);
+        
+      if (error) throw error;
+      
+      toast.success("Reminder settings updated");
+    } catch (error: any) {
+      toast.error(`Failed to update reminder settings: ${error.message}`);
+      throw error;
+    }
+  };
+
   const refreshData = async () => {
     return fetchData();
   };
@@ -486,6 +639,10 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
         deleteClient,
         markAsPaid,
         markAsSent,
+        recordPayment,
+        getInvoicePayments,
+        sendPaymentReminder,
+        updateReminderSettings,
         loading,
         refreshData
       }}

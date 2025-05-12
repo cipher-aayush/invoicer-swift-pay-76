@@ -15,6 +15,22 @@ export interface InvoiceItem {
   price: number;
 }
 
+export interface Payment {
+  id: string;
+  invoiceId: string;
+  amount: number;
+  date: string;
+  method: string;
+  notes?: string;
+}
+
+export interface ReminderSettings {
+  enabled: boolean;
+  beforeDueDays: number[];  // Days before due date to send reminders
+  afterDueDays: number[];   // Days after due date to send reminders
+  lastSentDate?: string;    // Last time a reminder was sent
+}
+
 export interface Invoice {
   id: string;
   invoiceNumber: string;
@@ -25,13 +41,17 @@ export interface Invoice {
   notes?: string;
   status: InvoiceStatus;
   totalAmount: number;
+  paidAmount?: number;
+  remainingAmount?: number;
+  payments?: Payment[];
+  reminderSettings?: ReminderSettings;
 }
 
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'partial';
 
 export interface PaymentMethod {
   id: string;
-  type: 'credit_card' | 'bank_transfer' | 'paypal';
+  type: 'credit_card' | 'bank_transfer' | 'paypal' | 'upi' | 'cash';
   details: string;
 }
 

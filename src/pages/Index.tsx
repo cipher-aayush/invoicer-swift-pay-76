@@ -157,11 +157,11 @@ const Index = () => {
       // Uncomment the line below to add sample clients when needed
       // addSampleClients();
       
-      navigate("/");
+      navigate("/dashboard");
     } else {
       navigate("/login");
     }
-  }, [user, navigate]);
+  }, [user, navigate, createClient]);
   
   return null; // This component only handles navigation
 };
