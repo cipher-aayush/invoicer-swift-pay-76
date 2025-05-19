@@ -39,7 +39,7 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
   
   // Table header
   doc.setFontSize(11);
-  doc.text("Description", 20, 170);
+  doc.text("Item Description", 20, 170);
   doc.text("Qty", 120, 170);
   doc.text("Price (₹)", 140, 170);
   doc.text("Total (₹)", 170, 170);
@@ -59,7 +59,7 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
     doc.text(description, 20, yPos);
     doc.text(item.quantity.toString(), 120, yPos);
     
-    // Format price in INR without the ₹ symbol
+    // Format price in INR with the ₹ symbol
     const priceInINR = formatCurrency(item.price, 'INR').replace('₹', '').trim();
     doc.text(priceInINR, 140, yPos);
     
@@ -86,23 +86,23 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
   const finalAmount = totalAmountINR * 1.18;
   
   doc.text("Subtotal:", 120, yPos);
-  doc.text(formatCurrency(totalAmountINR, 'INR'), 170, yPos);
+  doc.text(formatCurrency(totalAmountINR, 'INR').replace('₹', '').trim(), 170, yPos);
   yPos += 10;
   
   doc.text("GST (18%):", 120, yPos);
-  doc.text(formatCurrency(gstAmount, 'INR'), 170, yPos);
+  doc.text(formatCurrency(gstAmount, 'INR').replace('₹', '').trim(), 170, yPos);
   yPos += 10;
   
   if (invoice.paidAmount && invoice.paidAmount > 0) {
     const paidAmountINR = invoice.paidAmount;
     doc.text("Paid:", 120, yPos);
-    doc.text(`- ${formatCurrency(paidAmountINR, 'INR')}`, 170, yPos);
+    doc.text(`- ${formatCurrency(paidAmountINR, 'INR').replace('₹', '').trim()}`, 170, yPos);
     yPos += 10;
   }
   
   doc.setFontSize(12);
   doc.text("Total:", 120, yPos);
-  doc.text(formatCurrency(finalAmount, 'INR'), 170, yPos);
+  doc.text(formatCurrency(finalAmount, 'INR').replace('₹', '').trim(), 170, yPos);
   
   // Notes
   if (invoice.notes) {

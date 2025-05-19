@@ -16,6 +16,7 @@ export function formatCurrency(amount: number, currency: 'USD' | 'INR' = 'INR'):
 }
 
 // This function is kept for backward compatibility but now just returns the amount
+// as we're working directly with INR values
 export function convertUSDtoINR(amountUSD: number): number {
   return amountUSD; // No conversion needed as we're working directly in INR
 }
