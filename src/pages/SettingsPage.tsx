@@ -8,13 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useInvoice } from "@/contexts/InvoiceContext";
 
 export default function SettingsPage() {
-  const [companyName, setCompanyName] = useState("My Company");
-  const [email, setEmail] = useState("contact@mycompany.com");
-  const [phone, setPhone] = useState("+1 (555) 123-4567");
-  const [address, setAddress] = useState("123 Business St\nNew York, NY 10001");
-  const [taxId, setTaxId] = useState("12-3456789");
+  const { saveCompanyInfo } = useInvoice();
+  const [companyName, setCompanyName] = useState("Demo Business Solutions");
+  const [email, setEmail] = useState("contact@demobusiness.com");
+  const [phone, setPhone] = useState("+91 98765 43210");
+  const [address, setAddress] = useState("123 Business Park\nBangalore, KA 560001");
+  const [taxId, setTaxId] = useState("GSTIN: 29ABCDE1234F1Z5");
   
   // Payment settings
   const [acceptCreditCards, setAcceptCreditCards] = useState(true);
@@ -27,14 +29,38 @@ export default function SettingsPage() {
   const [paymentReceipts, setPaymentReceipts] = useState(true);
 
   const handleSaveBusinessInfo = () => {
+    // Save the business info to context or localStorage
+    saveCompanyInfo({
+      name: companyName,
+      email,
+      phone,
+      address,
+      taxId
+    });
+    
+    // Show success message
     toast.success("Business information saved successfully");
   };
 
   const handleSavePaymentSettings = () => {
+    // In a real app, we would save these settings to a backend
+    localStorage.setItem('paymentSettings', JSON.stringify({
+      acceptCreditCards,
+      acceptBankTransfers,
+      acceptPaypal
+    }));
+    
     toast.success("Payment settings saved successfully");
   };
 
   const handleSaveNotificationSettings = () => {
+    // In a real app, we would save these settings to a backend
+    localStorage.setItem('notificationSettings', JSON.stringify({
+      emailNotifications,
+      invoiceReminders,
+      paymentReceipts
+    }));
+    
     toast.success("Notification settings saved successfully");
   };
 
@@ -101,7 +127,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taxId">Tax ID / EIN</Label>
+                <Label htmlFor="taxId">Tax ID / GSTIN</Label>
                 <Input 
                   id="taxId" 
                   value={taxId} 

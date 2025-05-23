@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreditCard, IndianRupee, Check, Timer, Smartphone } from "lucide-react";
+import { CreditCard, IndianRupee, Check, Timer, Smartphone, QrCode } from "lucide-react";
 import { Invoice } from "@/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatCurrency, convertUSDtoINR } from "@/lib/utils";
@@ -20,7 +20,7 @@ interface PaymentProcessorProps {
 
 export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcessorProps) {
   const [paymentMethod, setPaymentMethod] = useState<"upi" | "card">("upi");
-  const [upiId, setUpiId] = useState("");
+  const [upiId, setUpiId] = useState("user@okaxis");
   const [cardNumber, setCardNumber] = useState("");
   const [cardName, setCardName] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
@@ -30,14 +30,22 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
   const [timer, setTimer] = useState<number | null>(null);
   const [otp, setOtp] = useState("");
   const [showOtpDialog, setShowOtpDialog] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
   
   const totalAmountINR = convertUSDtoINR(invoice.totalAmount);
   
   const handleUpiSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessing(true);
-    // Start a 10 second timer for UPI
-    setTimer(10);
+    
+    // If UPI ID is provided, process directly, otherwise show QR code
+    if (upiId) {
+      setIsProcessing(true);
+      // Start a 10 second timer for UPI
+      setTimer(10);
+    } else {
+      setShowQrCode(true);
+      setTimer(20); // Longer timer for QR code scanning
+    }
   };
 
   const handleCardSubmit = (e: React.FormEvent) => {
@@ -66,6 +74,17 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
     }
   };
   
+  const handleQrCodeSuccess = () => {
+    setShowQrCode(false);
+    setIsProcessing(true);
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      setIsProcessing(false);
+      setShowSuccess(true);
+    }, 2000);
+  };
+  
   const handleSuccessClose = () => {
     setShowSuccess(false);
     onPaymentComplete();
@@ -86,6 +105,7 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
       }, 1000);
     } else if (timer === 0) {
       setIsProcessing(false);
+      setShowQrCode(false);
       setShowSuccess(true);
     }
     
@@ -93,6 +113,24 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
       if (interval) clearInterval(interval);
     };
   }, [timer]);
+
+  // Format card number with spaces
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return value;
+    }
+  };
 
   return (
     <>
@@ -123,16 +161,24 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                     <Label htmlFor="upi-id">UPI ID</Label>
                     <Input 
                       id="upi-id" 
-                      placeholder="example@upi" 
+                      placeholder="yourname@upi" 
                       value={upiId}
                       onChange={(e) => setUpiId(e.target.value)}
-                      required
                       className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                     />
-                    <p className="text-xs text-muted-foreground truncate">Enter your UPI ID like yourname@bank or phoneNumber@upi</p>
+                    <p className="text-xs text-muted-foreground truncate flex justify-between">
+                      <span>Enter your UPI ID or</span>
+                      <button 
+                        type="button" 
+                        className="text-invoice-primary hover:underline" 
+                        onClick={() => setShowQrCode(true)}
+                      >
+                        Scan QR Code
+                      </button>
+                    </p>
                   </div>
                   
-                  {timer !== null && timer > 0 && (
+                  {timer !== null && timer > 0 && !showQrCode && (
                     <div className="space-y-2 animate-fade-in">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Processing payment...</span>
@@ -175,7 +221,7 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                       id="card-number"
                       placeholder="1234 5678 9012 3456" 
                       value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
+                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                       required
                       className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                     />
@@ -187,8 +233,15 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                         id="expiry" 
                         placeholder="MM/YY" 
                         value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/\D/g, '');
+                          if (val.length > 2) {
+                            val = val.slice(0, 2) + '/' + val.slice(2, 4);
+                          }
+                          setCardExpiry(val);
+                        }}
                         required
+                        maxLength={5}
                         className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                       />
                     </div>
@@ -200,7 +253,7 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
                         type="password" 
                         maxLength={3}
                         value={cardCvv}
-                        onChange={(e) => setCvv(e.target.value)}
+                        onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
                         required
                         className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
                       />
@@ -222,6 +275,50 @@ export function PaymentProcessor({ invoice, onPaymentComplete }: PaymentProcesso
           <p className="truncate">Your payment information is secure</p>
         </CardFooter>
       </Card>
+
+      {/* QR Code Dialog */}
+      <Dialog open={showQrCode} onOpenChange={setShowQrCode}>
+        <DialogContent className="sm:max-w-md animate-scale-in">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <QrCode className="mr-2 h-5 w-5" />
+              Scan UPI QR Code
+            </DialogTitle>
+            <DialogDescription>
+              Open your UPI app and scan this QR code to make the payment
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-4 py-4">
+            <div className="border-4 border-white bg-white shadow-lg rounded-lg p-4">
+              {/* Mock QR Code - In real app, this would be a real QR code */}
+              <div className="w-64 h-64 bg-white border p-2 flex items-center justify-center">
+                <div className="grid grid-cols-10 grid-rows-10 gap-0 w-full h-full">
+                  {Array.from({length: 100}).map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`${Math.random() > 0.7 ? 'bg-black' : 'bg-white'}`}
+                    ></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">Amount: {formatCurrency(totalAmountINR, 'INR')}</p>
+              {timer !== null && timer > 0 && (
+                <p className="text-sm flex items-center justify-center mt-2">
+                  <Timer className="mr-1 h-4 w-4 text-amber-500" />
+                  Waiting for payment: {timer}s
+                </p>
+              )}
+            </div>
+            
+            <Button onClick={handleQrCodeSuccess} className="bg-green-500 hover:bg-green-600">
+              I've Completed the Payment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* OTP Dialog */}
       <Dialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
