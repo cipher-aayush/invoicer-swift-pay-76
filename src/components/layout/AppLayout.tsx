@@ -1,6 +1,7 @@
+
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Banknote, Menu, X, FileText, Users, Clock, Settings, LogOut, User } from "lucide-react";
+import { Banknote, Menu, X, FileText, Users, Clock, Settings, LogOut, User, Receipt } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -29,7 +30,7 @@ function Sidebar() {
   
   const navItems = [
     { name: "Dashboard", path: "/", icon: <Banknote className="h-5 w-5" /> },
-    { name: "Invoices", path: "/invoices", icon: <FileText className="h-5 w-5" /> },
+    { name: "Invoices", path: "/invoices", icon: <Receipt className="h-5 w-5" /> },
     { name: "Clients", path: "/clients", icon: <Users className="h-5 w-5" /> },
     { name: "Payments", path: "/payments", icon: <Clock className="h-5 w-5" /> },
     { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" /> },
@@ -64,7 +65,7 @@ function Sidebar() {
             <Button variant="ghost" size="icon" onClick={toggleSidebar}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
-            <h1 className="text-lg font-bold ml-2">Invoice App</h1>
+            <h1 className="text-lg font-bold ml-2">BillMaster Pro</h1>
           </div>
           
           {/* User dropdown for mobile */}
@@ -107,7 +108,7 @@ function Sidebar() {
         } border-r bg-white px-3 py-4 flex flex-col`}
       >
         <div className="flex items-center h-14 px-3 mb-6">
-          <h1 className="text-xl font-bold">Invoice App</h1>
+          <h1 className="text-xl font-bold text-invoice-primary">BillMaster Pro</h1>
         </div>
         
         <nav className="flex-1 space-y-1">
