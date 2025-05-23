@@ -92,7 +92,7 @@ export function getCompanyInfo() {
 }
 
 // Save company info to localStorage
-export function saveCompanyInfo(companyInfo) {
+export function saveCompanyInfo(companyInfo: any) {
   localStorage.setItem('companyInfo', JSON.stringify(companyInfo));
 }
 

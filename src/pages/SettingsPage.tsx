@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,14 +9,15 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useInvoice } from "@/contexts/InvoiceContext";
+import { getCompanyInfo } from "@/lib/utils";
 
 export default function SettingsPage() {
   const { saveCompanyInfo } = useInvoice();
-  const [companyName, setCompanyName] = useState("Demo Business Solutions");
-  const [email, setEmail] = useState("contact@demobusiness.com");
-  const [phone, setPhone] = useState("+91 98765 43210");
-  const [address, setAddress] = useState("123 Business Park\nBangalore, KA 560001");
-  const [taxId, setTaxId] = useState("GSTIN: 29ABCDE1234F1Z5");
+  const [companyName, setCompanyName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [taxId, setTaxId] = useState("");
   
   // Payment settings
   const [acceptCreditCards, setAcceptCreditCards] = useState(true);
@@ -28,8 +29,18 @@ export default function SettingsPage() {
   const [invoiceReminders, setInvoiceReminders] = useState(true);
   const [paymentReceipts, setPaymentReceipts] = useState(true);
 
+  // Load company info when component mounts
+  useEffect(() => {
+    const companyInfo = getCompanyInfo();
+    setCompanyName(companyInfo.name || "");
+    setEmail(companyInfo.email || "");
+    setPhone(companyInfo.phone || "");
+    setAddress(companyInfo.address || "");
+    setTaxId(companyInfo.taxId || "");
+  }, []);
+
   const handleSaveBusinessInfo = () => {
-    // Save the business info to context or localStorage
+    // Save the business info to context
     saveCompanyInfo({
       name: companyName,
       email,

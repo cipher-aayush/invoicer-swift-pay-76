@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
+import { getCompanyInfo, saveCompanyInfo as saveCompanyInfoToStorage } from "@/lib/utils";
 
 type DbClient = Database['public']['Tables']['clients']['Row'];
 type DbInvoice = Database['public']['Tables']['invoices']['Row'];
@@ -30,6 +31,7 @@ interface InvoiceContextType {
   updateReminderSettings: (invoiceId: string, settings: ReminderSettings) => Promise<void>;
   loading: boolean;
   refreshData: () => Promise<void>;
+  saveCompanyInfo: (companyInfo: any) => void; // Added missing function
 }
 
 const InvoiceContext = createContext<InvoiceContextType | undefined>(undefined);
@@ -628,6 +630,11 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
     return fetchData();
   };
 
+  // Add the saveCompanyInfo function implementation
+  const saveCompanyInfo = (companyInfo: any) => {
+    saveCompanyInfoToStorage(companyInfo);
+  };
+
   return (
     <InvoiceContext.Provider
       value={{
@@ -648,7 +655,8 @@ export const InvoiceProvider: React.FC<{ children: ReactNode }> = ({ children })
         sendPaymentReminder,
         updateReminderSettings,
         loading,
-        refreshData
+        refreshData,
+        saveCompanyInfo // Add the function to the context provider
       }}
     >
       {children}
