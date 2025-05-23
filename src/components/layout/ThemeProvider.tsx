@@ -21,21 +21,28 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check for stored theme preference
-    const storedTheme = localStorage.getItem("theme") as Theme;
-    if (storedTheme) {
-      return storedTheme;
+    // Check if we're in the browser environment
+    if (typeof window !== "undefined") {
+      // Check for stored theme preference
+      const storedTheme = localStorage.getItem("theme") as Theme;
+      if (storedTheme) {
+        return storedTheme;
+      }
+      // Check system preference
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
     }
-    // Check system preference
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
+    // Default to light theme if not in browser
+    return "light";
   });
 
   // Apply theme class to document
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("theme", theme);
+    if (typeof window !== "undefined") {
+      document.documentElement.classList.toggle("dark", theme === "dark");
+      localStorage.setItem("theme", theme);
+    }
   }, [theme]);
 
   const toggleTheme = () => {
