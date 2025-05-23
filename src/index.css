@@ -48,49 +48,6 @@
     --invoice-primary: 252 76% 54%;
     --invoice-secondary: 252 80% 45%;
   }
-
-  .dark {
-    --background: 252 45% 10%;
-    --foreground: 252 16% 94%;
-
-    --card: 252 45% 15%;
-    --card-foreground: 252 16% 94%;
-
-    --popover: 252 45% 15%;
-    --popover-foreground: 252 16% 94%;
-
-    --primary: 252 80% 75%;
-    --primary-foreground: 252 45% 10%;
-
-    --secondary: 252 45% 20%;
-    --secondary-foreground: 252 16% 94%;
-
-    --muted: 252 45% 20%;
-    --muted-foreground: 252 10% 70%;
-
-    --accent: 252 45% 20%;
-    --accent-foreground: 252 16% 94%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 252 16% 94%;
-
-    --border: 252 45% 25%;
-    --input: 252 45% 25%;
-    --ring: 252 80% 75%;
-    
-    --sidebar-background: 252 45% 15%;
-    --sidebar-foreground: 252 16% 94%;
-    --sidebar-primary: 252 80% 75%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 252 45% 20%;
-    --sidebar-accent-foreground: 252 16% 94%;
-    --sidebar-border: 252 45% 25%;
-    --sidebar-ring: 252 80% 75%;
-    
-    /* Invoice specific colors */
-    --invoice-primary: 252 76% 54%;
-    --invoice-secondary: 252 80% 45%;
-  }
 }
 
 @layer base {
