@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInvoice } from "@/contexts/InvoiceContext";
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PlusCircle, Search, Users, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
+import { UniqueFrameAnimation } from "@/components/animations/UniqueFrameAnimations";
 
 export default function ClientList() {
   const { clients, deleteClient } = useInvoice();
@@ -42,7 +42,7 @@ export default function ClientList() {
   };
 
   return (
-    <div className="space-y-6">
+    <UniqueFrameAnimation type="clients" className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
@@ -133,6 +133,6 @@ export default function ClientList() {
           </Table>
         </div>
       )}
-    </div>
+    </UniqueFrameAnimation>
   );
 }

@@ -8,7 +8,7 @@ import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { RecentInvoicesCard } from "@/components/dashboard/RecentInvoicesCard";
 import { FinancialInsightsCard } from "@/components/dashboard/FinancialInsightsCard";
 import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";
-import { DashboardLoadingState } from "@/components/dashboard/DashboardLoadingState";
+import { SimpleDashboardLoader } from "@/components/dashboard/SimpleDashboardLoader";
 
 export default function Dashboard() {
   const { invoices, loading, refreshData } = useInvoice();
@@ -22,24 +22,29 @@ export default function Dashboard() {
   }, [refreshData, user]);
 
   if (loading) {
-    return <DashboardLoadingState />;
+    return <SimpleDashboardLoader />;
   }
 
   return (
-    <div className="space-y-8 p-6 particle-bg relative">
+    <div className="space-y-6 p-6 relative">
       <FloatingBackground />
 
-      <WelcomeSection user={user} />
+      <div className="animate-fade-in">
+        <WelcomeSection user={user} />
+      </div>
 
-      <StatsGrid invoices={invoices || []} />
+      <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <StatsGrid invoices={invoices || []} />
+      </div>
 
-      {/* Enhanced Main Content Grid */}
-      <div className="grid gap-8 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
         <RecentInvoicesCard invoices={invoices || []} />
         <FinancialInsightsCard invoices={invoices || []} />
       </div>
 
-      <QuickActionsCard />
+      <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <QuickActionsCard />
+      </div>
     </div>
   );
 }

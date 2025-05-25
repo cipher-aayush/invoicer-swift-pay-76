@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useInvoice } from "@/contexts/InvoiceContext";
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { PlusCircle, Search, FileText } from "lucide-react";
+import { UniqueFrameAnimation } from "@/components/animations/UniqueFrameAnimations";
 
 export default function InvoiceList() {
   const { invoices } = useInvoice();
@@ -34,10 +34,10 @@ export default function InvoiceList() {
   });
 
   return (
-    <div className="space-y-6">
+    <UniqueFrameAnimation type="invoices" className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight animate-fade-in">Invoices</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
           <p className="text-muted-foreground">Manage your invoices</p>
         </div>
         <Button 
@@ -84,7 +84,7 @@ export default function InvoiceList() {
 
       {/* Invoices Table */}
       {filteredInvoices.length === 0 ? (
-        <div className="text-center py-12 border rounded-lg animate-fade-in">
+        <div className="text-center py-12 border rounded-lg">
           <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
           <h3 className="mt-4 text-lg font-medium">No invoices found</h3>
           <p className="mt-1 text-muted-foreground truncate">
@@ -109,6 +109,6 @@ export default function InvoiceList() {
           <InvoiceTable invoices={filteredInvoices} />
         </div>
       )}
-    </div>
+    </UniqueFrameAnimation>
   );
 }
