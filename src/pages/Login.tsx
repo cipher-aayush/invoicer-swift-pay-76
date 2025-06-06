@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { SimpleLoadingScreen } from "@/components/auth/SimpleLoadingScreen";
-import FeaturesShowcase from "@/components/auth/FeaturesShowcase";
 import AuthForm from "@/components/auth/AuthForm";
 
 export default function Login() {
@@ -47,16 +46,13 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
-          <FeaturesShowcase />
-          <AuthForm 
-            onSignIn={handleSignIn}
-            onSignUp={handleSignUp}
-            isSubmitting={isSubmitting}
-          />
-        </div>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <AuthForm 
+          onSignIn={handleSignIn}
+          onSignUp={handleSignUp}
+          isSubmitting={isSubmitting}
+        />
       </div>
     </div>
   );
