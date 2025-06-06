@@ -7,24 +7,9 @@ interface FrameAnimationProps {
   className?: string;
 }
 
-export function UniqueFrameAnimation({ children, type, className = '' }: FrameAnimationProps) {
-  const getAnimationClass = () => {
-    switch (type) {
-      case 'invoices':
-        return 'animate-invoice-frame';
-      case 'clients':
-        return 'animate-client-frame';
-      case 'payments':
-        return 'animate-payment-frame';
-      case 'settings':
-        return 'animate-settings-frame';
-      default:
-        return 'animate-fade-in';
-    }
-  };
-
+export function UniqueFrameAnimation({ children, className = '' }: FrameAnimationProps) {
   return (
-    <div className={`${getAnimationClass()} ${className}`}>
+    <div className={className}>
       {children}
     </div>
   );

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useInvoice } from "@/contexts/InvoiceContext";
@@ -11,9 +12,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { PlusCircle, Search, FileText } from "lucide-react";
-import { UniqueFrameAnimation } from "@/components/animations/UniqueFrameAnimations";
 
 export default function InvoiceList() {
   const { invoices } = useInvoice();
@@ -21,7 +20,6 @@ export default function InvoiceList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   
-  // Filter invoices based on search term and status
   const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch = 
       invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,22 +32,18 @@ export default function InvoiceList() {
   });
 
   return (
-    <UniqueFrameAnimation type="invoices" className="space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
           <p className="text-muted-foreground">Manage your invoices</p>
         </div>
-        <Button 
-          onClick={() => navigate("/invoices/new")}
-          className="transition-all duration-200 hover:scale-105 bg-invoice-primary hover:bg-invoice-secondary"
-        >
+        <Button onClick={() => navigate("/invoices/new")}>
           <PlusCircle className="mr-2 h-4 w-4" />
           New Invoice
         </Button>
       </div>
       
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <div className="relative">
@@ -57,7 +51,7 @@ export default function InvoiceList() {
             <Input
               type="search"
               placeholder="Search invoices..."
-              className="pl-9 transition-all duration-200 focus:ring-2 focus:ring-invoice-primary"
+              className="pl-9"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -68,7 +62,7 @@ export default function InvoiceList() {
             value={statusFilter}
             onValueChange={(value) => setStatusFilter(value)}
           >
-            <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-invoice-primary">
+            <SelectTrigger>
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -82,21 +76,17 @@ export default function InvoiceList() {
         </div>
       </div>
 
-      {/* Invoices Table */}
       {filteredInvoices.length === 0 ? (
         <div className="text-center py-12 border rounded-lg">
           <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
           <h3 className="mt-4 text-lg font-medium">No invoices found</h3>
-          <p className="mt-1 text-muted-foreground truncate">
+          <p className="mt-1 text-muted-foreground">
             {searchTerm || statusFilter !== "all"
               ? "Try changing your search or filter"
               : "Create your first invoice to get started"}
           </p>
           {!searchTerm && statusFilter === "all" && (
-            <Button 
-              className="mt-4 transition-all duration-200 hover:scale-105 bg-invoice-primary hover:bg-invoice-secondary" 
-              asChild
-            >
+            <Button className="mt-4" asChild>
               <Link to="/invoices/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Create Invoice
@@ -105,10 +95,10 @@ export default function InvoiceList() {
           )}
         </div>
       ) : (
-        <div className="border rounded-lg transition-all duration-200 hover:shadow-md">
+        <div className="border rounded-lg">
           <InvoiceTable invoices={filteredInvoices} />
         </div>
       )}
-    </UniqueFrameAnimation>
+    </div>
   );
 }

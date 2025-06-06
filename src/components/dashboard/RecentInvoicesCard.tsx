@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Star } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InvoiceTable } from "@/components/invoice/InvoiceTable";
 import { Invoice } from "@/types";
@@ -17,20 +17,17 @@ export function RecentInvoicesCard({ invoices }: RecentInvoicesCardProps) {
     : [];
 
   return (
-    <Card className="md:col-span-2 glass-card animate-magnetic-hover overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent text-holographic"></div>
-      <CardHeader className="relative">
-        <CardTitle className="flex items-center gap-3 text-2xl">
-          <Star className="h-7 w-7 text-yellow-500 animate-floating-sparkle" /> 
-          <span className="text-gradient-animated">Recent Invoices</span>
+    <Card className="md:col-span-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Recent Invoices
         </CardTitle>
-        <CardDescription className="text-lg">Your latest invoice activity</CardDescription>
+        <CardDescription>Your latest invoice activity</CardDescription>
       </CardHeader>
-      <CardContent className="relative">
+      <CardContent>
         {recentInvoices.length > 0 ? (
-          <div className="animate-elastic-entrance">
-            <InvoiceTable invoices={recentInvoices} />
-          </div>
+          <InvoiceTable invoices={recentInvoices} />
         ) : (
           <div className="text-center py-8 text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />

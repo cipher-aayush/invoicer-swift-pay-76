@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInvoice } from "@/contexts/InvoiceContext";
@@ -19,14 +20,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PlusCircle, Search, Users, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
-import { UniqueFrameAnimation } from "@/components/animations/UniqueFrameAnimations";
 
 export default function ClientList() {
   const { clients, deleteClient } = useInvoice();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   
-  // Filter clients based on search term
   const filteredClients = clients.filter(client => 
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -42,7 +41,7 @@ export default function ClientList() {
   };
 
   return (
-    <UniqueFrameAnimation type="clients" className="space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
@@ -54,7 +53,6 @@ export default function ClientList() {
         </Button>
       </div>
       
-      {/* Search */}
       <div className="flex gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -68,7 +66,6 @@ export default function ClientList() {
         </div>
       </div>
 
-      {/* Clients Table */}
       {filteredClients.length === 0 ? (
         <div className="text-center py-12 border rounded-lg">
           <Users className="h-12 w-12 mx-auto text-muted-foreground" />
@@ -133,6 +130,6 @@ export default function ClientList() {
           </Table>
         </div>
       )}
-    </UniqueFrameAnimation>
+    </div>
   );
 }

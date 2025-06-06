@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { SimpleLoadingScreen } from "@/components/auth/SimpleLoadingScreen";
-import { LightAnimatedBackground } from "@/components/auth/LightAnimatedBackground";
 import FeaturesShowcase from "@/components/auth/FeaturesShowcase";
 import AuthForm from "@/components/auth/AuthForm";
 
@@ -47,11 +47,9 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-invoice-primary/10 via-purple-50 to-blue-100 p-4 relative overflow-hidden">
-      <LightAnimatedBackground />
-
-      <div className="relative flex items-center justify-center min-h-screen">
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center animate-fade-in">
+    <div className="min-h-screen bg-background p-4">
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
           <FeaturesShowcase />
           <AuthForm 
             onSignIn={handleSignIn}

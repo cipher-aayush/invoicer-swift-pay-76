@@ -44,50 +44,38 @@ export function StatsGrid({ invoices }: StatsGridProps) {
   const stats = calculateStats();
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 stagger-children">
-      <div className="animate-card-flip-in card-3d-hover">
-        <StatCard 
-          title="Total Revenue" 
-          value={formatCurrency(stats.totalRevenue)} 
-          icon={<Banknote className="h-6 w-6 text-green-500 animate-floating-sparkle" />} 
-          trend={{ value: 12, positive: true }}
-          className="glass-card border-l-4 border-green-500 animate-neon-glow"
-        />
-      </div>
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <StatCard 
+        title="Total Revenue" 
+        value={formatCurrency(stats.totalRevenue)} 
+        icon={<Banknote className="h-5 w-5" />} 
+        trend={{ value: 12, positive: true }}
+      />
       
-      <div className="animate-card-flip-in card-3d-hover">
-        <StatCard 
-          title="Pending Revenue" 
-          value={formatCurrency(stats.pendingRevenue)} 
-          icon={<Clock className="h-6 w-6 text-amber-500 animate-quantum-pulse" />} 
-          trend={{ value: 5, positive: false }}
-          className="glass-card border-l-4 border-amber-500"
-        />
-      </div>
+      <StatCard 
+        title="Pending Revenue" 
+        value={formatCurrency(stats.pendingRevenue)} 
+        icon={<Clock className="h-5 w-5" />} 
+        trend={{ value: 5, positive: false }}
+      />
       
-      <div className="animate-card-flip-in card-3d-hover">
-        <StatCard 
-          title="Total Invoices" 
-          value={stats.totalInvoices} 
-          icon={<FileText className="h-6 w-6 text-blue-500 animate-floating-sparkle" />} 
-          description={`${stats.paidInvoices} paid, ${stats.overdueInvoices} overdue`}
-          className="glass-card border-l-4 border-blue-500"
-        />
-      </div>
+      <StatCard 
+        title="Total Invoices" 
+        value={stats.totalInvoices} 
+        icon={<FileText className="h-5 w-5" />} 
+        description={`${stats.paidInvoices} paid, ${stats.overdueInvoices} overdue`}
+      />
       
-      <div className="animate-card-flip-in card-3d-hover">
-        <StatCard 
-          title="Active Clients" 
-          value={invoices && invoices.length > 0 
-            ? invoices
-                .map(invoice => invoice.client?.id)
-                .filter((id, index, array) => id && array.indexOf(id) === index).length
-            : 0
-          } 
-          icon={<Users className="h-6 w-6 text-purple-500 animate-quantum-pulse" />}
-          className="glass-card border-l-4 border-purple-500" 
-        />
-      </div>
+      <StatCard 
+        title="Active Clients" 
+        value={invoices && invoices.length > 0 
+          ? invoices
+              .map(invoice => invoice.client?.id)
+              .filter((id, index, array) => id && array.indexOf(id) === index).length
+          : 0
+        } 
+        icon={<Users className="h-5 w-5" />}
+      />
     </div>
   );
 }
