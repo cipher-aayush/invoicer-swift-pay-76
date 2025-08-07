@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import AppLayout from "@/components/layout/AppLayout";
+import "@/i18n";
 
 // Pages
 import Login from "./pages/Login";

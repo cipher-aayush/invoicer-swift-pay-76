@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Banknote, Menu, X, FileText, Users, Clock, Settings, LogOut, User, Receipt } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -25,15 +27,16 @@ function Sidebar() {
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   
   const navItems = [
-    { name: "Dashboard", path: "/", icon: <Banknote className="h-5 w-5" /> },
-    { name: "Invoices", path: "/invoices", icon: <Receipt className="h-5 w-5" /> },
-    { name: "Clients", path: "/clients", icon: <Users className="h-5 w-5" /> },
-    { name: "Payments", path: "/payments", icon: <Clock className="h-5 w-5" /> },
-    { name: "Settings", path: "/settings", icon: <Settings className="h-5 w-5" /> },
+    { name: t("navigation.dashboard"), path: "/", icon: <Banknote className="h-5 w-5" /> },
+    { name: t("navigation.invoices"), path: "/invoices", icon: <Receipt className="h-5 w-5" /> },
+    { name: t("navigation.clients"), path: "/clients", icon: <Users className="h-5 w-5" /> },
+    { name: t("navigation.payments"), path: "/payments", icon: <Clock className="h-5 w-5" /> },
+    { name: t("navigation.settings"), path: "/settings", icon: <Settings className="h-5 w-5" /> },
   ];
   
   const isActive = (path: string) => 
@@ -85,11 +88,11 @@ function Sidebar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/settings")}>
                   <Settings className="mr-2 h-4 w-4" />
-                  Settings
+                  {t("navigation.settings")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  {t("auth.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -129,6 +132,11 @@ function Sidebar() {
           ))}
         </nav>
         
+        {/* Language selector */}
+        <div className="px-3 mb-4">
+          <LanguageSelector variant="button" />
+        </div>
+        
         {/* User profile section (desktop only) */}
         {!isMobile && (
           <div className="border-t pt-4 mt-6">
@@ -149,15 +157,15 @@ function Sidebar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>{t("settings.account")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/settings")}>
                   <Settings className="mr-2 h-4 w-4" />
-                  Settings
+                  {t("navigation.settings")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  {t("auth.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

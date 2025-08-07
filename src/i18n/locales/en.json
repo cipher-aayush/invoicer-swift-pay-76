@@ -1,0 +1,100 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create your account",
+    "signInWithEmail": "Sign in with email",
+    "signUpWithEmail": "Sign up with email"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "clients": "Clients",
+    "payments": "Payments",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "welcomeTitle": "Welcome to BillMaster Pro",
+    "welcomeSubtitle": "Your financial command center",
+    "createInvoice": "Create Invoice",
+    "quickActions": "Quick Actions",
+    "newInvoice": "New Invoice",
+    "newClient": "New Client",
+    "recentInvoices": "Recent Invoices",
+    "recentInvoicesDesc": "Your latest invoice activity",
+    "noInvoices": "No invoices yet. Create your first invoice to get started!",
+    "financialInsights": "Financial Insights",
+    "totalRevenue": "Total Revenue",
+    "pendingAmount": "Pending Amount",
+    "totalInvoices": "Total Invoices",
+    "paidInvoices": "Paid Invoices"
+  },
+  "invoice": {
+    "invoice": "Invoice",
+    "invoices": "Invoices",
+    "invoiceNumber": "Invoice Number",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "client": "Client",
+    "amount": "Amount",
+    "status": "Status",
+    "draft": "Draft",
+    "sent": "Sent",
+    "paid": "Paid",
+    "overdue": "Overdue",
+    "description": "Description",
+    "quantity": "Quantity",
+    "rate": "Rate",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "discount": "Discount"
+  },
+  "client": {
+    "client": "Client",
+    "clients": "Clients",
+    "clientName": "Client Name",
+    "clientEmail": "Client Email",
+    "clientPhone": "Client Phone",
+    "clientAddress": "Client Address",
+    "addClient": "Add Client",
+    "editClient": "Edit Client",
+    "clientDetails": "Client Details"
+  },
+  "payments": {
+    "payments": "Payments",
+    "paymentHistory": "Payment History",
+    "paymentMethod": "Payment Method",
+    "paymentDate": "Payment Date",
+    "paymentAmount": "Payment Amount",
+    "recordPayment": "Record Payment"
+  },
+  "settings": {
+    "settings": "Settings",
+    "profile": "Profile",
+    "preferences": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "account": "Account",
+    "selectLanguage": "Select Language"
+  }
+}

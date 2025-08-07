@@ -4,21 +4,23 @@ import { FileText, Users, Banknote, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export function QuickActionsCard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const actions = [
-    { icon: FileText, label: 'New Invoice', path: '/invoices/new' },
-    { icon: Users, label: 'New Client', path: '/clients/new' },
-    { icon: Banknote, label: 'Payments', path: '/payments' },
-    { icon: Settings, label: 'Settings', path: '/settings' }
+    { icon: FileText, label: t('dashboard.newInvoice'), path: '/invoices/new' },
+    { icon: Users, label: t('dashboard.newClient'), path: '/clients/new' },
+    { icon: Banknote, label: t('navigation.payments'), path: '/payments' },
+    { icon: Settings, label: t('navigation.settings'), path: '/settings' }
   ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
+        <CardTitle>{t('dashboard.quickActions')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

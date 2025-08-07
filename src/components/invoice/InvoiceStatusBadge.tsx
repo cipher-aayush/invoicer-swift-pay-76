@@ -2,6 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { InvoiceStatus } from "@/types";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface InvoiceStatusBadgeProps {
   status: InvoiceStatus;
@@ -9,6 +10,8 @@ interface InvoiceStatusBadgeProps {
 }
 
 export function InvoiceStatusBadge({ status, className }: InvoiceStatusBadgeProps) {
+  const { t } = useTranslation();
+  
   const getStatusColor = () => {
     switch (status) {
       case "draft":
@@ -27,13 +30,13 @@ export function InvoiceStatusBadge({ status, className }: InvoiceStatusBadgeProp
   const getStatusText = () => {
     switch (status) {
       case "draft":
-        return "Draft";
+        return t("invoice.draft");
       case "sent":
-        return "Sent";
+        return t("invoice.sent");
       case "paid":
-        return "Paid";
+        return t("invoice.paid");
       case "overdue":
-        return "Overdue";
+        return t("invoice.overdue");
       default:
         return status;
     }

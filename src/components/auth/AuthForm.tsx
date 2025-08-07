@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Receipt, Sparkles, Zap, Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 interface AuthFormProps {
   onSignIn: (email: string, password: string) => Promise<void>;
@@ -18,6 +20,7 @@ export default function AuthForm({ onSignIn, onSignUp, isSubmitting }: AuthFormP
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const { t } = useTranslation();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,21 +53,26 @@ export default function AuthForm({ onSignIn, onSignUp, isSubmitting }: AuthFormP
           <CardTitle className="text-5xl font-bold text-gradient-animated">BillMaster Pro</CardTitle>
         </div>
         <CardDescription className="text-xl text-gray-600 animate-elastic-entrance" style={{ animationDelay: '0.2s' }}>
-          Access your financial command center
+          {t('dashboard.welcomeSubtitle')}
         </CardDescription>
+        
+        {/* Language Selector */}
+        <div className="absolute top-4 right-4">
+          <LanguageSelector variant="button" />
+        </div>
       </CardHeader>
       
       <Tabs defaultValue="signIn" className="w-full relative">
         <TabsList className="grid w-full grid-cols-2 mb-8 glass-morphism">
-          <TabsTrigger value="signIn" className="animate-magnetic-hover text-lg py-3">Sign In</TabsTrigger>
-          <TabsTrigger value="signUp" className="animate-magnetic-hover text-lg py-3">Sign Up</TabsTrigger>
+          <TabsTrigger value="signIn" className="animate-magnetic-hover text-lg py-3">{t('auth.login')}</TabsTrigger>
+          <TabsTrigger value="signUp" className="animate-magnetic-hover text-lg py-3">{t('auth.signup')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="signIn" className="animate-elastic-entrance">
           <form onSubmit={handleSignIn}>
             <CardContent className="space-y-6 pt-2">
               <div className="space-y-3 animate-card-flip-in" style={{ animationDelay: '0.1s' }}>
-                <Label htmlFor="email" className="text-lg font-medium text-gray-700">Email</Label>
+                <Label htmlFor="email" className="text-lg font-medium text-gray-700">{t('auth.email')}</Label>
                 <Input 
                   id="email" 
                   type="email" 
@@ -76,7 +84,7 @@ export default function AuthForm({ onSignIn, onSignUp, isSubmitting }: AuthFormP
                 />
               </div>
               <div className="space-y-3 animate-card-flip-in" style={{ animationDelay: '0.2s' }}>
-                <Label htmlFor="password" className="text-lg font-medium text-gray-700">Password</Label>
+                <Label htmlFor="password" className="text-lg font-medium text-gray-700">{t('auth.password')}</Label>
                 <Input 
                   id="password" 
                   type="password" 
@@ -98,12 +106,12 @@ export default function AuthForm({ onSignIn, onSignUp, isSubmitting }: AuthFormP
                   {isSubmitting ? (
                     <>
                       <Clock className="h-5 w-5 animate-spin" />
-                      Signing in...
+                      {t('common.loading')}
                     </>
                   ) : (
                     <>
                       <Zap className="h-5 w-5 animate-floating-sparkle" />
-                      Sign In
+                      {t('auth.signInWithEmail')}
                     </>
                   )}
                 </span>
@@ -127,7 +135,7 @@ export default function AuthForm({ onSignIn, onSignUp, isSubmitting }: AuthFormP
                 />
               </div>
               <div className="space-y-3 animate-card-flip-in" style={{ animationDelay: '0.2s' }}>
-                <Label htmlFor="emailSignUp" className="text-lg font-medium text-gray-700">Email</Label>
+                <Label htmlFor="emailSignUp" className="text-lg font-medium text-gray-700">{t('auth.email')}</Label>
                 <Input 
                   id="emailSignUp" 
                   type="email" 
@@ -139,7 +147,7 @@ export default function AuthForm({ onSignIn, onSignUp, isSubmitting }: AuthFormP
                 />
               </div>
               <div className="space-y-3 animate-card-flip-in" style={{ animationDelay: '0.3s' }}>
-                <Label htmlFor="passwordSignUp" className="text-lg font-medium text-gray-700">Password</Label>
+                <Label htmlFor="passwordSignUp" className="text-lg font-medium text-gray-700">{t('auth.password')}</Label>
                 <Input 
                   id="passwordSignUp" 
                   type="password" 
@@ -163,12 +171,12 @@ export default function AuthForm({ onSignIn, onSignUp, isSubmitting }: AuthFormP
                   {isSubmitting ? (
                     <>
                       <Clock className="h-5 w-5 animate-spin" />
-                      Creating account...
+                      {t('common.loading')}
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-5 w-5 animate-floating-sparkle" />
-                      Create Account
+                      {t('auth.createAccount')}
                     </>
                   )}
                 </span>
