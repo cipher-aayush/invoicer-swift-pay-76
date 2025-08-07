@@ -32,11 +32,9 @@ export function LanguageSelector({ variant = "dropdown" }: LanguageSelectorProps
   if (variant === "button") {
     return (
       <Select value={i18n.language} onValueChange={changeLanguage}>
-        <SelectTrigger asChild>
-          <Button variant="ghost" size="sm" className="w-auto gap-2">
-            <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">{currentLanguage.nativeName}</span>
-          </Button>
+        <SelectTrigger className="w-auto h-auto p-2 border-0 bg-transparent hover:bg-accent gap-2">
+          <Globe className="h-4 w-4" />
+          <span className="hidden sm:inline">{currentLanguage.nativeName}</span>
         </SelectTrigger>
         <SelectContent>
           {languages.map((language) => (
